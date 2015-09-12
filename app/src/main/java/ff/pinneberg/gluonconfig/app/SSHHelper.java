@@ -240,7 +240,7 @@ public class SSHHelper{
 
     }
 
-    public void populateNumberPicker(final NumberPicker numberPicker,final String command, final String currentval){
+    public void populateNumberPicker(final NumberPicker numberPicker, final String currentval){
         final Handler handler = new Handler();
         checkSSHClient();
         new Thread(() -> {
@@ -255,7 +255,6 @@ public class SSHHelper{
                     selectable_values.add(i +" dBm (" +ConversionHelper.dmtomw_int(i)+ " mW )");
                 }
 
-                //final String[] select_vals = removeSpaces(executeCommandwithoutCorrection(command));
                 final String[] select_vals = new String[selectable_values.size()];
                 selectable_values.toArray(select_vals);
 
@@ -264,9 +263,10 @@ public class SSHHelper{
                 handler.post(() -> {
 
                     numberPicker.setDisplayedValues(select_vals);
+                    numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
                     numberPicker.setMinValue(0);
-                    numberPicker.setMaxValue(select_vals.length - 1);
-                    numberPicker.setValue(Integer.parseInt(currentval));
+                    numberPicker.setMaxValue(select_vals.length -1);
+                    numberPicker.setValue(Integer.parseInt(currentval) -1 );
                 });
             }
         }).start();

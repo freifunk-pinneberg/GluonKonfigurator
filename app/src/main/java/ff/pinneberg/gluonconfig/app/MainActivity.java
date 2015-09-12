@@ -262,7 +262,7 @@ public class MainActivity extends ActionBarActivity {
         header.setText(info.get(KEY_HEADER));
 
 
-        Core.sshHelper.populateNumberPicker(numberPicker,info.get(KEY_SELECT_VALUES),curValue);
+        Core.sshHelper.populateNumberPicker(numberPicker,curValue);
 
         // set dialog message
         alertDialogBuilder
