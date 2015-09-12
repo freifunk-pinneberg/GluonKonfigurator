@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:title="@string/settings">
+
+    <PreferenceCategory android:title="@string/authentication">
+        <EditTextPreference
+            android:key="auth_host"
+            android:title="@string/host"
+            android:summary="@string/host_summary" />
+
+        <EditTextPreference
+                android:key="auth_username"
+                android:title="@string/username"
+                android:defaultValue="root"
+                android:summary="@string/username_summary" />
+
+
+    <ListPreference
+            android:key="auth_method"
+            android:entries="@array/Auth"
+            android:summary="@string/auth_summary"
+            android:entryValues="@array/AuthValues"
+            android:title="@string/auth_text" />
+
+    <EditTextPreference
+            android:key="auth_password"
+            android:title="@string/password"
+            android:summary="@string/password_summary"
+            android:inputType="textPassword"/>
+
+    <Preference
+            android:key="auth_key"
+            android:title="@string/key"
+            android:summary="@string/key_summary"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/location">
+
+        <CheckBoxPreference
+            android:title="@string/automatic_location"
+            android:summary="@string/automatic_location_summary"
+            android:key="automatic_location" />
+
+        <CheckBoxPreference
+            android:title="@string/use_gps"
+            android:key="use_gps"
+            android:dependency="automatic_location"
+            android:summary="@string/use_gps_summary" />
+
+        <CheckBoxPreference
+            android:title="@string/use_wifi"
+            android:key="use_wifi"
+            android:dependency="automatic_location"
+            android:summary="@string/use_wifi_summary" />
+
+        <CheckBoxPreference
+            android:title="@string/use_passive_location"
+            android:summary="@string/use_passive_location_summary"
+            android:key="use_passive_location"
+            android:dependency="automatic_location" />
+
+        <EditTextPreference
+            android:title="@string/check_new_postition"
+            android:summary="@string/check_new_postition_summary"
+            android:dependency="automatic_location"
+            android:defaultValue="10"
+            android:key="check_new_position"
+            android:inputType="number"/>
+
+        <EditTextPreference
+                android:title="@string/min_distance"
+                android:summary="@string/min_distance_summary"
+                android:dependency="automatic_location"
+                android:key="min_distance"
+                android:defaultValue="10"
+                android:inputType="numberDecimal"/>
+
+    </PreferenceCategory>
+
+
+
+
+</PreferenceScreen>
