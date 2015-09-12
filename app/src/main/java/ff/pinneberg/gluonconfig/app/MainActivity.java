@@ -75,6 +75,8 @@ public class MainActivity extends ActionBarActivity {
         add(wifi);
     }};
 
+    //dBm Conversion Table
+
 
     public static String gluon_get = "uci get ";
     public static String gluon_set = "uci set ";
