@@ -103,7 +103,8 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private void lol(){
+
+    /*private void showLoadingAnimation(){
         ProgressDialog dialog = new ProgressDialog(MainActivity.this);
         dialog.setCancelable(true);
 
@@ -112,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
         dialog.setIndeterminate(true);
         dialog.setIndeterminateDrawable(Core.getResource().getDrawable(R.drawable.clockwise_rotate));
         dialog.show();
-    }
+    }*/
 
     private void initUI(){
         final ExpandableListView listView = (ExpandableListView) findViewById(R.id.mainListView);
