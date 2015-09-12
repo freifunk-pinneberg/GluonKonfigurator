@@ -61,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> wifi= new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.transmitting_power));
-            put(KEY_COMMAND,"wirel ess.radio0.txpower");
+            put(KEY_COMMAND,"wireless.radio0.txpower");
             put(KEY_SELECT_VALUES,"iwinfo client0 txpower");
         }});
 

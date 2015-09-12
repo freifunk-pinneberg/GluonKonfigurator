@@ -6,7 +6,7 @@ package ff.pinneberg.gluonconfig.app;
 public class ConversionHelper {
 
     public static double dbmtomw(int dbm){
-        return Math.pow(10,(dbm/10));
+        return Math.pow((double) 10,((double) dbm/ (double) 10));
     }
 
     public static double mwtodbm(double mw){

@@ -209,7 +209,7 @@ public class SSHHelper{
             final String response = executeCommand(command);
 
             handler.post(() -> {
-                switch (response){
+                switch (response) {
                     case "1":
                         textView.setText(Core.getResource().getString(R.string.enabled));
                         break;
@@ -217,9 +217,9 @@ public class SSHHelper{
                         textView.setText(Core.getResource().getString(R.string.disabled));
                         break;
                     default:
-                        if(response.length() <1){
+                        if (response.length() < 1) {
                             textView.setText(Core.getResource().getString(R.string.not_available));
-                        }else{
+                        } else {
                             textView.setText(response);
                         }
                         break;
@@ -244,22 +244,31 @@ public class SSHHelper{
         final Handler handler = new Handler();
         checkSSHClient();
         new Thread(() -> {
-            final String[] select_vals =removeSpaces(executeCommandwithoutCorrection(command));
-            int temp_val = 0;
-            //this is very bad. Need fix
-            try{
-                temp_val = Integer.parseInt(currentval);
-            }catch (NumberFormatException e){
-                e.printStackTrace();
-            }
-            final int curr_val = temp_val;
-            handler.post(() -> {
 
-                numberPicker.setDisplayedValues(select_vals);
-                numberPicker.setMinValue(0);
-                numberPicker.setMaxValue(select_vals.length -1);
-                numberPicker.setValue(curr_val);
-            });
+            if(isInteger(currentval)) {
+                int iterations = Integer.parseInt(currentval);
+                if (iterations < 20) {
+                    iterations = 20;
+                }
+                ArrayList<String> selectable_values = new ArrayList<>();
+                for(int i= 1; i<=iterations;i++){
+                    selectable_values.add(i +" dBm (" +ConversionHelper.dmtomw_int(i)+ " mW )");
+                }
+
+                //final String[] select_vals = removeSpaces(executeCommandwithoutCorrection(command));
+                final String[] select_vals = new String[selectable_values.size()];
+                selectable_values.toArray(select_vals);
+
+
+
+                handler.post(() -> {
+
+                    numberPicker.setDisplayedValues(select_vals);
+                    numberPicker.setMinValue(0);
+                    numberPicker.setMaxValue(select_vals.length - 1);
+                    numberPicker.setValue(Integer.parseInt(currentval));
+                });
+            }
         }).start();
     }
 
@@ -278,6 +287,21 @@ public class SSHHelper{
         return lines.toArray(new String[lines.size()]);
     }
 
+    public static boolean isInteger(String s) {
+        return isInteger(s,10);
+    }
+
+    public static boolean isInteger(String s, int radix) {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++) {
+            if(i == 0 && s.charAt(i) == '-') {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i),radix) < 0) return false;
+        }
+        return true;
+    }
 
     private Handler handler = new Handler(msg -> {
         switch(msg.what){
