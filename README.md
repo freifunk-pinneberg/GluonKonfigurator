@@ -8,7 +8,7 @@ Die Kommunikation läuft über SSH.
 
 
 Warnung:
-Der Code ist möglichweise grausam.
+Der Code ist möglichweise grausam. **Bitte verlasse dich aktuell nicht auf den Schutz deiner Anmeldedaten oder deines private Keys, aktuell wird alles im Klartext gespeichert.**
 
 
 ###Folgende Laufzeitbibliotheken werden in diesen Projekt verwendet:###
