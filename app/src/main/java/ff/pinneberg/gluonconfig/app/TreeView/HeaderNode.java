@@ -34,9 +34,8 @@ public class HeaderNode extends TreeNode.BaseNodeViewHolder<HeaderNode.HeaderTex
 
 
         arrowView = (PrintView) view.findViewById(R.id.arrow_icon);
-        if (node.isLeaf()) {
-            arrowView.setVisibility(View.INVISIBLE);
-        }
+        arrowView.setIconText(context.getResources().getString(R.string.ic_keyboard_arrow_right));
+
 
         return view;
     }

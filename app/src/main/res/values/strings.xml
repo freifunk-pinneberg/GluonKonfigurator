@@ -10,6 +10,8 @@
     <string name="cancel">Cancel</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <!-- ErrorMessages -->
     <string name="error_no_host">Error: No host configured</string>
@@ -37,6 +39,10 @@
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>
     <string name="host_name">Host name</string>
+
+    <!-- Delete Host Dialog -->
+    <string name="delete_host">Delete Host</string>
+    <string name="delete_host_text">Are you sure you want to remove this host?</string>
     
     
     <!-- Settings -->

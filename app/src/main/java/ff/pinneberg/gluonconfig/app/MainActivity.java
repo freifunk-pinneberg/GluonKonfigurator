@@ -1,6 +1,7 @@
 package ff.pinneberg.gluonconfig.app;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
@@ -102,6 +103,9 @@ public class MainActivity extends ActionBarActivity {
     ExpandableListAdapter expandableListAdapter;
     SharedPreferences sp;
     ArrayList<HashMap<String,String>> hosts;
+    AndroidTreeView tView;
+    RelativeLayout rootLayout;
+    TreeNode root;
 
 
     @Override
@@ -132,8 +136,16 @@ public class MainActivity extends ActionBarActivity {
     }*/
 
     private void initUI(){
-        RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.RootLayout);
-        TreeNode root = TreeNode.root();
+        rootLayout = (RelativeLayout) findViewById(R.id.RootLayout);
+        initTreeView();
+
+    }
+
+    private void initTreeView(){
+        if(root == null) {
+            root = TreeNode.root();
+        }
+
 
         Type type = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
         hosts = new Gson().fromJson(sp.getString("hosts", ""), type);
@@ -141,9 +153,18 @@ public class MainActivity extends ActionBarActivity {
             hosts = new ArrayList<>();
         }
 
+
         for(HashMap<String,String> eachHost: hosts){
 
             TreeNode parent = new TreeNode(new HeaderNode.HeaderText(eachHost.get(KEY_HOSTNAME))).setViewHolder(new HeaderNode(MainActivity.this));
+
+
+
+            parent.getViewHolder().getView().setOnLongClickListener(view -> {
+
+                deleteHostDialog(eachHost.get(KEY_HOSTNAME));
+                return true;
+            });
 
 
             for (int i = 0; i < superList.size(); i++) {
@@ -182,9 +203,24 @@ public class MainActivity extends ActionBarActivity {
             root.addChild(parent);
         }
 
-        AndroidTreeView tView = new AndroidTreeView(MainActivity.this, root);
-        rootLayout.addView(tView.getView());
 
+
+            tView = new AndroidTreeView(MainActivity.this, root);
+            rootLayout.addView(tView.getView());
+
+
+    }
+
+    private void rebuildTreeView(){
+
+        if(tView != null){
+            List<TreeNode> children = root.getChildren();
+            for(TreeNode child: children){
+                root.deleteChild(child);
+            }
+            rootLayout.removeView(tView.getView());
+            initTreeView();
+        }
     }
 
     private void initVariables(){
@@ -266,6 +302,7 @@ public class MainActivity extends ActionBarActivity {
                             hosts.add(newHost);
 
                             sp.edit().putString("hosts", gson.toJson(hosts)).apply();
+                           // rebuildTreeView();
 
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -289,7 +326,57 @@ public class MainActivity extends ActionBarActivity {
         alertDialog.show();
         //Force Keyboard to be shown
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+
+    private void deleteHostDialog(String hostName){
+        AlertDialog.Builder deleteHostDialog = new AlertDialog.Builder(
+                MainActivity.this);
+
+
+        deleteHostDialog.setTitle(Core.getResource().getString(R.string.delete_host));
+
+
+        deleteHostDialog.setMessage(Core.getResource().getString(R.string.delete_host_text));
+
+
+
+
+        deleteHostDialog.setPositiveButton(Core.getResource().getString(R.string.yes),
+                (dialog, which) -> {
+                    Type type = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
+                    hosts = new Gson().fromJson(sp.getString("hosts", ""), type);
+                    if(hosts == null){
+                        hosts = new ArrayList<>();
+                    }
+
+                    int index=-1;
+
+                    for(int i=0;i<hosts.size();i++){
+                        if(hosts.get(i).get(KEY_HOSTNAME).equals(hostName)){
+                            index =i;
+                            break;
+                        }
+                    }
+
+                    if(index >-1) {
+                        hosts.remove(index);
+                        sp.edit().putString("hosts", new Gson().toJson(hosts)).apply();
+                       // rebuildTreeView();
+                    }
+
+                    dialog.dismiss();
+                });
+
+        deleteHostDialog.setNegativeButton(Core.getResource().getString(R.string.no),
+                (dialog, which) -> {
+                    // Write your code here to execute after dialog
+
+                    dialog.cancel();
+                });
+
+        deleteHostDialog.show();
     }
 
 

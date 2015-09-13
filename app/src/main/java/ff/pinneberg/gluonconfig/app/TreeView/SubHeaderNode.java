@@ -38,6 +38,8 @@ public class SubHeaderNode extends TreeNode.BaseNodeViewHolder<SubHeaderNode.Sub
             arrowView.setVisibility(View.INVISIBLE);
         }
 
+        arrowView.setIconText(context.getResources().getString(R.string.ic_keyboard_arrow_right));
+
         return view;
     }
 
