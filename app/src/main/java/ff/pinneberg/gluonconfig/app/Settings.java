@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.*;
+import java.util.Scanner;
 
 public class Settings extends SettingsActivity {
 
@@ -180,19 +181,32 @@ public class Settings extends SettingsActivity {
     private boolean copyKeyToInternalStorage(String FilePath){
         File sourceFile = new File(FilePath);
         if(sourceFile.exists()){
-            try {
-                File destinationFile = new File(getFilesDir() + FilePath.substring(FilePath.lastIndexOf("/") + 1));
-                BufferedInputStream is = new BufferedInputStream(new FileInputStream(sourceFile));
-                BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(destinationFile));
 
-                byte[] buff = new byte[8096];
-                int len;
-                while ((len = is.read(buff)) > 0) {
-                    os.write(buff, 0, len);
+            try {
+                final Scanner scanner = new Scanner(sourceFile);
+                boolean noPassword=true;
+                while (scanner.hasNextLine()) {
+                    final String lineFromFile = scanner.nextLine();
+                    if(lineFromFile.contains("ENCRYPTED")) {
+                        Core.toastError("This app does not support encrypted SSH Keys at the moment", Settings.this);
+                        noPassword = false;
+                        break;
+                    }
                 }
-                is.close();
-                os.close();
-                sp.edit().putString(KEY_PATH,destinationFile.getAbsolutePath()).apply();
+                if(noPassword) {
+                    File destinationFile = new File(getFilesDir() + FilePath.substring(FilePath.lastIndexOf("/") + 1));
+                    BufferedInputStream is = new BufferedInputStream(new FileInputStream(sourceFile));
+                    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(destinationFile));
+
+                    byte[] buff = new byte[8096];
+                    int len;
+                    while ((len = is.read(buff)) > 0) {
+                        os.write(buff, 0, len);
+                    }
+                    is.close();
+                    os.close();
+                    sp.edit().putString(KEY_PATH, destinationFile.getAbsolutePath()).apply();
+                }
             }catch (IOException e){
                 e.printStackTrace();
                 return false;
