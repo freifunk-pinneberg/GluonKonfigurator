@@ -31,6 +31,7 @@ public class Settings extends SettingsActivity {
 
 
     final int KeyCopyFinished = 0;
+    final int ErrorSSHPassword= 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -188,7 +189,9 @@ public class Settings extends SettingsActivity {
                 while (scanner.hasNextLine()) {
                     final String lineFromFile = scanner.nextLine();
                     if(lineFromFile.contains("ENCRYPTED")) {
-                        Core.toastError("This app does not support encrypted SSH Keys at the moment", Settings.this);
+                        Message msg = Message.obtain();
+                        msg.what = ErrorSSHPassword;
+                        handler.sendMessage(msg);
                         noPassword = false;
                         break;
                     }
@@ -230,6 +233,9 @@ public class Settings extends SettingsActivity {
                 }
                 break;
 
+            case ErrorSSHPassword:
+                    Toast.makeText(getApplicationContext(),"This app does not support encrypted SSH Keys at the moment", Toast.LENGTH_LONG).show();
+                break;
         }
     }
 

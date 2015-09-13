@@ -33,6 +33,6 @@ public class Core extends Application {
     }
 
     public static void toastError(String errorMessage, Context context){
-        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
     }
 }
