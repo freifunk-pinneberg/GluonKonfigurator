@@ -138,7 +138,7 @@ public class MainActivity extends ActionBarActivity {
                 child.setClickListener((treeNode, o) -> {
                     ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
 
-                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.list_itemvalue);
+                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
 
                     String textvalue = textField.getText().toString();
                     if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {

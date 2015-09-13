@@ -2,12 +2,9 @@ package ff.pinneberg.gluonconfig.app.TreeView;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import com.github.johnkil.print.PrintView;
 import com.unnamed.b.atv.model.TreeNode;
 import ff.pinneberg.gluonconfig.app.Core;
 import ff.pinneberg.gluonconfig.app.MainActivity;
@@ -30,9 +27,9 @@ public class ChildNode extends TreeNode.BaseNodeViewHolder<ChildNode.ChildNodeDa
     public View createNodeView(TreeNode node, ChildNodeData value) {
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.childnode, null, false);
-        TextView header = (TextView) view.findViewById(R.id.list_itemheader);
+        TextView header = (TextView) view.findViewById(R.id.childNode_itemheader);
         header.setTypeface(null, Typeface.BOLD);
-        TextView description = (TextView) view.findViewById(R.id.list_itemvalue);
+        TextView description = (TextView) view.findViewById(R.id.childNode_itemvalue);
         header.setText(value.data.get(MainActivity.KEY_HEADER));
         Core.sshHelper.setText(description,MainActivity.gluon_get + value.data.get(MainActivity.KEY_COMMAND));
 

@@ -17,5 +17,7 @@ Der Code ist möglichweise grausam. **Bitte verlasse dich aktuell nicht auf den 
 
 [sshj](https://github.com/hierynomus/sshj)
 
-[RetroLambda](https://github.com/evant/gradle-retrolambda)
+[Gradle-RetroLambda](https://github.com/evant/gradle-retrolambda)
+
+[AndroidTreeView](https://github.com/bmelnychuk/AndroidTreeView)
 

@@ -7,7 +7,7 @@
 
 
     <TextView
-        android:id="@+id/list_itemheader"
+        android:id="@+id/childNode_itemheader"
         android:layout_width="fill_parent"
         android:layout_height="34dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
@@ -19,7 +19,7 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/list_itemvalue"
+        android:id="@+id/childNode_itemvalue"
         android:layout_width="fill_parent"
         android:layout_height="26dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
