@@ -4,10 +4,6 @@
 	android:title="@string/settings">
 
     <PreferenceCategory android:title="@string/authentication">
-        <EditTextPreference
-            android:key="auth_host"
-            android:title="@string/host"
-            android:summary="@string/host_summary" />
 
         <EditTextPreference
                 android:key="auth_username"
