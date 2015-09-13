@@ -11,7 +11,7 @@ Warnung:
 Der Code ist möglichweise grausam. **Bitte verlasse dich aktuell nicht auf den Schutz deiner Anmeldedaten oder deines private Keys, aktuell wird alles im Klartext gespeichert.**
 
 
-###Folgende Laufzeitbibliotheken werden in diesen Projekt verwendet:###
+**Folgende Laufzeitbibliotheken werden in diesen Projekt verwendet:**
 
 [SpongyCastle](https://github.com/rtyley/spongycastle)
 
