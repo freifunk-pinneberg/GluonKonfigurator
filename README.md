@@ -21,3 +21,5 @@ Der Code ist möglichweise grausam. **Bitte verlasse dich aktuell nicht auf den 
 
 [AndroidTreeView](https://github.com/bmelnychuk/AndroidTreeView)
 
+[GSON](https://github.com/google/gson)
+
