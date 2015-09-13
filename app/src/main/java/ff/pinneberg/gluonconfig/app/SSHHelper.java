@@ -202,6 +202,14 @@ public class SSHHelper{
         }).start();
     }
 
+    public void changeSetting(String... commands){
+
+        for(String command:commands) {
+            executeCommandThread(MainActivity.gluon_set + command);
+        }
+
+    }
+
     public void setText(final TextView textView, final String command){
         final Handler handler = new Handler();
         checkSSHClient();

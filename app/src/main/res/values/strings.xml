@@ -62,8 +62,14 @@
     <string name="check_new_postition_summary">Check every x minutes for a new Position</string>
     <string name="min_distance">Minimum Distance</string>
     <string name="min_distance_summary">Minumim Distance in meters before new location is registered</string>
-    
-    
+
+
+
+
+    <string name="ic_keyboard_arrow_down">&#xe0c5;</string>
+    <string name="ic_keyboard_arrow_left">&#xe0c6;</string>
+    <string name="ic_keyboard_arrow_right">&#xe0c7;</string>
+    <string name="ic_keyboard_arrow_up">&#xe0c8;</string>
 
 
 </resources>

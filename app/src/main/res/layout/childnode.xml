@@ -1,5 +1,7 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
+              android:orientation="vertical"
+    android:minHeight="60dp"
     android:layout_height="60dp"
      >
 
@@ -7,29 +9,23 @@
     <TextView
         android:id="@+id/list_itemheader"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="34dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
-        android:layout_above="@+id/list_itemvalue"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignWithParentIfMissing="true"
+
         android:textColor="@android:color/black"
         android:gravity="center_vertical"
         android:text="Header"
-        android:maxLines="3"
-        android:textSize="16sp" />
+        android:singleLine="true"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/list_itemvalue"
         android:layout_width="fill_parent"
-        android:layout_height="26dip"
+        android:layout_height="26dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
-        android:layout_alignLeft="@+id/list_itemheader"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:ellipsize="marquee"
         android:textColor="@android:color/black"
         android:singleLine="true"
         android:textSize="12sp" />
 
-</RelativeLayout>
+</LinearLayout>

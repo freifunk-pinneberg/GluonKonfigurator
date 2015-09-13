@@ -1,20 +1,24 @@
 package ff.pinneberg.gluonconfig.app;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.unnamed.b.atv.model.TreeNode;
+import com.unnamed.b.atv.view.AndroidTreeView;
+import ff.pinneberg.gluonconfig.app.TreeView.ChildNode;
+import ff.pinneberg.gluonconfig.app.TreeView.HeaderNode;
+import ff.pinneberg.gluonconfig.app.TreeView.SubHeaderNode;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -88,6 +92,7 @@ public class MainActivity extends ActionBarActivity {
     public static String KEY_SELECT_VALUES = "select_values";
     public static String KEY_VALUE = "value";
     ExpandableListAdapter expandableListAdapter;
+    SharedPreferences sp;
 
 
     @Override
@@ -118,35 +123,51 @@ public class MainActivity extends ActionBarActivity {
     }*/
 
     private void initUI(){
-        final ExpandableListView listView = (ExpandableListView) findViewById(R.id.mainListView);
+        RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.RootLayout);
+        TreeNode root = TreeNode.root();
 
-        expandableListAdapter = new ExpandableListAdapter(getApplicationContext(),groupHeaders,superList);
-        listView.setAdapter(expandableListAdapter);
-        listView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+        HeaderNode.HeaderText headerText = new HeaderNode.HeaderText("Test");
 
-            TextView textField = (TextView) v.findViewById(R.id.list_itemvalue);
-            String textvalue = textField.getText().toString();
-            HashMap<String, String> info = (HashMap<String, String>) expandableListAdapter.getChild(groupPosition, childPosition);
-            if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
-                changeSetting(info.get(KEY_COMMAND2_DISABLE), info.get(KEY_COMMAND) + "=0");
+        TreeNode parent = new TreeNode(headerText).setViewHolder(new HeaderNode(MainActivity.this));
 
-                textField.setText(Core.getResource().getString(R.string.disabled));
-            } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
-                changeSetting(info.get(KEY_COMMAND2_ENABLE), info.get(KEY_COMMAND) + "=1");
-                textField.setText(Core.getResource().getString(R.string.enabled));
 
-            } else if (textvalue.equals(Core.getResource().getString(R.string.not_available))) {
-                Core.toastError(Core.getResource().getString(R.string.error_not_available), getApplicationContext());
-            } else {
-                if (info.containsKey(KEY_SELECT_VALUES)) {
-                    editNumberPickerDialog(info, textvalue, textField);
-                } else {
-                    editDialog(info, textvalue);
-                }
+        for(int i= 0; i< superList.size();i++){
+            TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
+            for(HashMap<String,String> each: superList.get(i)){
+                TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each)).setViewHolder(new ChildNode(MainActivity.this));
+                child.setClickListener((treeNode, o) -> {
+                    ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.list_itemvalue);
+
+                    String textvalue = textField.getText().toString();
+                    if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
+                        changeSetting(nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+
+                        textField.setText(Core.getResource().getString(R.string.disabled));
+                    } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
+                        changeSetting(nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
+                        textField.setText(Core.getResource().getString(R.string.enabled));
+
+                    } else if (textvalue.equals(Core.getResource().getString(R.string.not_available))) {
+                        Core.toastError(Core.getResource().getString(R.string.error_not_available), getApplicationContext());
+                    } else {
+                        if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
+                            editNumberPickerDialog(nodeData.data, textvalue, textField);
+                        } else {
+                            editDialog(nodeData.data, textvalue);
+                        }
+                    }
+                });
+                subCategory.addChild(child);
             }
+            parent.addChild(subCategory);
+        }
 
-            return true;
-        });
+        root.addChild(parent);
+
+        AndroidTreeView tView = new AndroidTreeView(MainActivity.this, root);
+        rootLayout.addView(tView.getView());
 
     }
 
@@ -154,6 +175,7 @@ public class MainActivity extends ActionBarActivity {
         Intent i = new Intent(MainActivity.this,LocationService.class);
         startService(i);
 
+        sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
     }
 
 
@@ -178,6 +200,9 @@ public class MainActivity extends ActionBarActivity {
             startActivity(i);
             return true;
         }
+        if(id == R.id.action_add_host){
+            addHostDialog();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -191,6 +216,55 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
+    private void addHostDialog(){
+        // get prompts.xml view
+        LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View promptsView = layoutInflater.inflate(R.layout.alertdialog_edit,null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                MainActivity.this);
+
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.alertEditText);
+
+
+        final TextView header = (TextView) promptsView.findViewById(R.id.alertTitle);
+        header.setText("Add Host");
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(Core.getResource().getString(R.string.ok),
+                        (dialog, id) -> {
+                            Set<String> hosts = sp.getStringSet("hosts", new HashSet<>());
+                            hosts.add(userInput.getText().toString());
+                            sp.edit().putStringSet("hosts", hosts).apply();
+                            InputMethodManager imm =
+                                    (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                            dialog.dismiss();
+
+                        })
+                .setNegativeButton(Core.getResource().getString(R.string.cancel),
+                        (dialog, id) -> {
+                            InputMethodManager imm =
+                                    (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY,0);
+                            dialog.dismiss();
+                        });
+
+        // create alert dialog
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+
+        // show it
+        alertDialog.show();
+        //Force Keyboard to be shown
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+    }
 
 
     private void editDialog(final HashMap<String,String> info,String curValue){
