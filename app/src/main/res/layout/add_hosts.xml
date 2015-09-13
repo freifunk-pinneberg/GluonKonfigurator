@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:padding="10dp" >
+
+    <TextView
+            android:id="@+id/add_host_ip_header"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/host_name"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+            android:id="@+id/add_host_name"
+            android:layout_width="match_parent"
+            android:singleLine="true"
+            android:layout_height="wrap_content" >
+
+        <requestFocus />
+
+    </EditText>
+
+
+    <TextView
+            android:id="@+id/add_host_ip_title"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ip_adress"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <EditText
+            android:id="@+id/add_host_ip"
+            android:layout_width="match_parent"
+            android:singleLine="true"
+            android:layout_height="wrap_content" >
+
+    </EditText>
+
+</LinearLayout>

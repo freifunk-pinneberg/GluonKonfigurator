@@ -31,7 +31,7 @@ public class ChildNode extends TreeNode.BaseNodeViewHolder<ChildNode.ChildNodeDa
         header.setTypeface(null, Typeface.BOLD);
         TextView description = (TextView) view.findViewById(R.id.childNode_itemvalue);
         header.setText(value.data.get(MainActivity.KEY_HEADER));
-        Core.sshHelper.setText(description,MainActivity.gluon_get + value.data.get(MainActivity.KEY_COMMAND));
+        Core.sshHelper.setText(description,MainActivity.gluon_get + value.data.get(MainActivity.KEY_COMMAND),value.hostinfo.get(MainActivity.KEY_IPADRESS));
 
 
         return view;
@@ -39,9 +39,11 @@ public class ChildNode extends TreeNode.BaseNodeViewHolder<ChildNode.ChildNodeDa
 
     public static class ChildNodeData {
         public HashMap<String,String> data;
+        public HashMap<String,String> hostinfo;
 
-        public ChildNodeData(HashMap<String,String> childNodeData){
+        public ChildNodeData(HashMap<String,String> childNodeData, HashMap<String,String> host){
             data = childNodeData;
+            hostinfo=host;
         }
     }
 

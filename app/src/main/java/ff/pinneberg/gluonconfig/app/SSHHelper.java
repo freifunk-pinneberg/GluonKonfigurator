@@ -27,6 +27,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.InetAddress;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ public class SSHHelper{
     SharedPreferences sp;
 
     boolean connectingInProgress = false;
+    boolean sshConnectionInUse = false;
 
     final int connectingFinished = -1;
     final int errorOccured =-2;
@@ -59,7 +61,7 @@ public class SSHHelper{
     }
 
 
-    private void connect() {
+    private void connect(String ipadress) {
 
 
         connectingInProgress= true;
@@ -68,20 +70,16 @@ public class SSHHelper{
         sshClient.addHostKeyVerifier(new PromiscuousVerifier());
         new Thread(() -> {
 
-            //Needs better error handling
+            //Needs better error handling and big rework - looks horribletry
             String username = sp.getString("auth_username","root");
 
             try {
-                String host = sp.getString("auth_host", "");
-                if (host.length() < 1) {
-                    toastError(Core.getResource().getString(R.string.error_no_host));
-                } else {
                     String auth_method = sp.getString("auth_method", "");
                     if (auth_method.length() > 1) {
                         if (auth_method.equals("password")) {
                             String password = sp.getString("auth_password", "");
                             if (password.length() > 1) {
-                                sshClient.connect(sp.getString("host", ""));
+                                sshClient.connect(ipadress);
                                 sshClient.authPassword(username, password);
 
                                 Message msg = Message.obtain();
@@ -96,7 +94,7 @@ public class SSHHelper{
                                 File private_key = new File(keypath);
                                 if (private_key.exists()) {
                                     KeyProvider keys = sshClient.loadKeys(private_key.getPath());
-                                    sshClient.connect(host);
+                                    sshClient.connect(ipadress);
                                     sshClient.authPublickey(username, keys);
 
                                     Message msg = Message.obtain();
@@ -113,7 +111,7 @@ public class SSHHelper{
                         toastError(Core.getResource().getString(R.string.error_no_auth_method));
                     }
 
-                }
+
 
             }catch (IOException e){
                 connectingInProgress = false;
@@ -142,7 +140,7 @@ public class SSHHelper{
     }
 
 
-    private void checkSSHClient(){
+   /* private void checkSSHClient(String ipadress){
 
         if(sshClient == null){
             sshClient = new SSHClient();
@@ -150,7 +148,7 @@ public class SSHHelper{
         if(!sshClient.isConnected() && !connectingInProgress){
             connect();
         }
-    }
+    }*/
 
     private void toastError(String errorMessage){
         Toast.makeText(context,errorMessage,Toast.LENGTH_SHORT).show();
@@ -160,13 +158,15 @@ public class SSHHelper{
         Toast.makeText(context,errorMessage,Toast.LENGTH_LONG).show();
     }
 
-    public String executeCommand(String command){
-        checkSSHClient();
-        return executeCommandwithoutCorrection(command).replace("\n", "");
+    public String executeCommand(String command,String ipadress){
+       // checkSSHClient();
+        return executeCommandwithoutCorrection(command,ipadress).replace("\n", "");
     }
 
-    public String executeCommandwithoutCorrection(String command){
-        checkSSHClient();
+    public String executeCommandwithoutCorrection(String command,String ipadress){
+        //checkSSHClient();
+
+        //checking may need to be put in other method
         String returnval = "";
         while(connectingInProgress){
             try {
@@ -175,7 +175,57 @@ public class SSHHelper{
                 e.printStackTrace();
             }
         }
-        if(sshClient != null && sshClient.isConnected()) {
+        while(sshConnectionInUse){
+            try {
+                Thread.sleep(50);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        sshConnectionInUse = true;
+
+        if(sshClient != null){
+            if(sshClient.isConnected()){
+
+                try {
+
+
+                    if(!sshClient.getRemoteAddress().equals(InetAddress.getByName(ipadress))){
+                        connect(ipadress);
+                        while(connectingInProgress){
+                            try {
+                                Thread.sleep(50);
+                            }catch (InterruptedException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+
+                    Session session = sshClient.startSession();
+                    Session.Command cmd = session.exec(command);
+                    returnval = IOUtils.readFully(cmd.getInputStream()).toString();
+                    cmd.join();
+                    session.close();
+                } catch (IOException e) {
+                    Message msg = Message.obtain();
+                    msg.what = errorOccured;
+                    msg.obj = e.getMessage();
+                    handler.sendMessage(msg);
+                    e.printStackTrace();
+                }
+
+            }
+        }else{
+            connect(ipadress);
+            while(connectingInProgress){
+                try {
+                    Thread.sleep(50);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+
             try {
                 Session session = sshClient.startSession();
                 Session.Command cmd = session.exec(command);
@@ -189,32 +239,28 @@ public class SSHHelper{
                 handler.sendMessage(msg);
                 e.printStackTrace();
             }
+
         }
 
+        sshConnectionInUse = false;
 
         return returnval;
     }
 
-    public void executeCommandThread(final String command){
-        checkSSHClient();
+    public void executeCommandThread(final String command,final String ipadress){
+      //  checkSSHClient();
         new Thread(() -> {
-            executeCommand(command);
+            executeCommand(command,ipadress);
         }).start();
     }
 
-    public void changeSetting(String... commands){
 
-        for(String command:commands) {
-            executeCommandThread(MainActivity.gluon_set + command);
-        }
-
-    }
-
-    public void setText(final TextView textView, final String command){
+    public void setText(final TextView textView, final String command,String ipadress){
         final Handler handler = new Handler();
-        checkSSHClient();
+
+        //checkSSHClient();
         new Thread(() -> {
-            final String response = executeCommand(command);
+            final String response = executeCommand(command,ipadress);
 
             handler.post(() -> {
                 switch (response) {
@@ -250,7 +296,7 @@ public class SSHHelper{
 
     public void populateNumberPicker(final NumberPicker numberPicker, final String currentval){
         final Handler handler = new Handler();
-        checkSSHClient();
+       // checkSSHClient();
         new Thread(() -> {
 
             if(isInteger(currentval)) {

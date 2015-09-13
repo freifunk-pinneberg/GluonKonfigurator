@@ -11,6 +11,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 import ff.pinneberg.gluonconfig.app.TreeView.ChildNode;
@@ -18,6 +20,7 @@ import ff.pinneberg.gluonconfig.app.TreeView.HeaderNode;
 import ff.pinneberg.gluonconfig.app.TreeView.SubHeaderNode;
 
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 
@@ -91,8 +94,14 @@ public class MainActivity extends ActionBarActivity {
     public static String KEY_COMMAND2_DISABLE = "command2_disable";
     public static String KEY_SELECT_VALUES = "select_values";
     public static String KEY_VALUE = "value";
+
+
+    public static String KEY_HOSTNAME = "hostname";
+    public static String KEY_IPADRESS = "ipadress";
+
     ExpandableListAdapter expandableListAdapter;
     SharedPreferences sp;
+    ArrayList<HashMap<String,String>> hosts;
 
 
     @Override
@@ -126,45 +135,52 @@ public class MainActivity extends ActionBarActivity {
         RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.RootLayout);
         TreeNode root = TreeNode.root();
 
-        HeaderNode.HeaderText headerText = new HeaderNode.HeaderText("Test");
-
-        TreeNode parent = new TreeNode(headerText).setViewHolder(new HeaderNode(MainActivity.this));
-
-
-        for(int i= 0; i< superList.size();i++){
-            TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
-            for(HashMap<String,String> each: superList.get(i)){
-                TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each)).setViewHolder(new ChildNode(MainActivity.this));
-                child.setClickListener((treeNode, o) -> {
-                    ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
-
-                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
-
-                    String textvalue = textField.getText().toString();
-                    if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
-                        changeSetting(nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
-
-                        textField.setText(Core.getResource().getString(R.string.disabled));
-                    } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
-                        changeSetting(nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
-                        textField.setText(Core.getResource().getString(R.string.enabled));
-
-                    } else if (textvalue.equals(Core.getResource().getString(R.string.not_available))) {
-                        Core.toastError(Core.getResource().getString(R.string.error_not_available), getApplicationContext());
-                    } else {
-                        if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
-                            editNumberPickerDialog(nodeData.data, textvalue, textField);
-                        } else {
-                            editDialog(nodeData.data, textvalue);
-                        }
-                    }
-                });
-                subCategory.addChild(child);
-            }
-            parent.addChild(subCategory);
+        Type type = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
+        hosts = new Gson().fromJson(sp.getString("hosts", ""), type);
+        if(hosts == null){
+            hosts = new ArrayList<>();
         }
 
-        root.addChild(parent);
+        for(HashMap<String,String> eachHost: hosts){
+
+            TreeNode parent = new TreeNode(new HeaderNode.HeaderText(eachHost.get(KEY_HOSTNAME))).setViewHolder(new HeaderNode(MainActivity.this));
+
+
+            for (int i = 0; i < superList.size(); i++) {
+                TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
+                for (HashMap<String, String> each : superList.get(i)) {
+                    TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each,eachHost)).setViewHolder(new ChildNode(MainActivity.this));
+                    child.setClickListener((treeNode, o) -> {
+                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+
+                        String textvalue = textField.getText().toString();
+                        if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
+                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+
+                            textField.setText(Core.getResource().getString(R.string.disabled));
+                        } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
+                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
+                            textField.setText(Core.getResource().getString(R.string.enabled));
+
+                        } else if (textvalue.equals(Core.getResource().getString(R.string.not_available))) {
+                            Core.toastError(Core.getResource().getString(R.string.error_not_available), getApplicationContext());
+                        } else {
+                            if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
+                                editNumberPickerDialog(nodeData.data, textvalue, textField,nodeData.hostinfo.get(KEY_IPADRESS));
+                            } else {
+                                editDialog(nodeData.data, textvalue,nodeData.hostinfo.get(KEY_IPADRESS));
+                            }
+                        }
+                    });
+                    subCategory.addChild(child);
+                }
+                parent.addChild(subCategory);
+            }
+
+            root.addChild(parent);
+        }
 
         AndroidTreeView tView = new AndroidTreeView(MainActivity.this, root);
         rootLayout.addView(tView.getView());
@@ -207,10 +223,10 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void changeSetting(String... commands){
+    private void changeSetting(String ipadress,String... commands){
 
         for(String command:commands) {
-            Core.sshHelper.executeCommandThread(gluon_set + command);
+            Core.sshHelper.executeCommandThread(gluon_set + command,ipadress);
         }
 
     }
@@ -220,27 +236,37 @@ public class MainActivity extends ActionBarActivity {
         // get prompts.xml view
         LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View promptsView = layoutInflater.inflate(R.layout.alertdialog_edit,null);
+        View promptsView = layoutInflater.inflate(R.layout.add_hosts,null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 MainActivity.this);
 
         alertDialogBuilder.setView(promptsView);
 
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.alertEditText);
+        final EditText hostname = (EditText) promptsView.findViewById(R.id.add_host_name);
+        final EditText ipaddress = (EditText) promptsView.findViewById(R.id.add_host_ip);
 
 
-        final TextView header = (TextView) promptsView.findViewById(R.id.alertTitle);
-        header.setText("Add Host");
 
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
-                            Set<String> hosts = sp.getStringSet("hosts", new HashSet<>());
-                            hosts.add(userInput.getText().toString());
-                            sp.edit().putStringSet("hosts", hosts).apply();
+
+                            Gson gson = new Gson();
+                            hosts = gson.fromJson(sp.getString("hosts", ""), ArrayList.class);
+
+                            HashMap<String, String> newHost = new HashMap<>();
+                            newHost.put(KEY_HOSTNAME, hostname.getText().toString());
+                            newHost.put(KEY_IPADRESS, ipaddress.getText().toString());
+                            if (hosts == null) {
+                                hosts = new ArrayList<>();
+                            }
+                            hosts.add(newHost);
+
+                            sp.edit().putString("hosts", gson.toJson(hosts)).apply();
+
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -251,7 +277,7 @@ public class MainActivity extends ActionBarActivity {
                         (dialog, id) -> {
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY,0);
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                             dialog.dismiss();
                         });
 
@@ -267,7 +293,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private void editDialog(final HashMap<String,String> info,String curValue){
+    private void editDialog(final HashMap<String,String> info,String curValue,String ipadress){
         // get prompts.xml view
         LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -290,7 +316,7 @@ public class MainActivity extends ActionBarActivity {
                 .setCancelable(false)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
-                            changeSetting(info.get(KEY_COMMAND),userInput.getText().toString());
+                            changeSetting(ipadress,info.get(KEY_COMMAND),userInput.getText().toString());
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -317,7 +343,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private void editNumberPickerDialog(final HashMap<String,String> info,String curValue, final TextView valueField){
+    private void editNumberPickerDialog(final HashMap<String,String> info,String curValue, final TextView valueField,String ipadress){
         // get prompts.xml view
         LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -345,7 +371,6 @@ public class MainActivity extends ActionBarActivity {
                         (dialog, id) -> {
                             // get user input and set it to result
                             // edit text
-                            //changeSetting(info.get(KEY_COMMAND),userInput.getText().toString());
                             changeSetting(info.get(KEY_COMMAND)+"="+String.valueOf(numberPicker.getValue()));
                             valueField.setText(String.valueOf(numberPicker.getValue()));
                             dialog.dismiss();

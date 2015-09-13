@@ -33,6 +33,10 @@
     <string name="transmitting_power">Transmitting Power</string>
     
     <string name="not_available">Not Available</string>
+
+    <!-- Host Dialog -->
+    <string name="ip_adress">IP address</string>
+    <string name="host_name">Host name</string>
     
     
     <!-- Settings -->
@@ -61,7 +65,7 @@
     <string name="check_new_postition">Check for new Position</string>
     <string name="check_new_postition_summary">Check every x minutes for a new Position</string>
     <string name="min_distance">Minimum Distance</string>
-    <string name="min_distance_summary">Minumim Distance in meters before new location is registered</string>
+    <string name="min_distance_summary">Minimum Distance in meters before new location is registered</string>
 
 
 

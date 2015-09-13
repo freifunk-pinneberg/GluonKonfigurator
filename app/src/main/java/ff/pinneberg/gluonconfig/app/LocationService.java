@@ -135,8 +135,8 @@ public class LocationService extends Service {
             Log.i(getClass().getSimpleName(),"Location Changed");
             if(isBetterLocation(loc, previousBestLocation)) {
 
-                Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].latitude=" + loc.getLatitude());
-                Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].longitude=" + loc.getLongitude());
+               // Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].latitude=" + loc.getLatitude());
+               // Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].longitude=" + loc.getLongitude());
 
             }
         }
