@@ -1,16 +1,17 @@
 package ff.pinneberg.gluonconfig.app;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.google.gson.Gson;
@@ -21,7 +22,6 @@ import ff.pinneberg.gluonconfig.app.TreeView.ChildNode;
 import ff.pinneberg.gluonconfig.app.TreeView.HeaderNode;
 import ff.pinneberg.gluonconfig.app.TreeView.SubHeaderNode;
 import ff.pinneberg.gluonconfig.app.helper.Utils;
-
 
 import java.lang.reflect.Type;
 import java.util.*;
