@@ -34,7 +34,7 @@
     <string name="wifi">Wifi</string>
     <string name="transmitting_power">Transmitting Power</string>
     
-    <string name="not_available">Not Available</string>
+    <string name="not_available">Not Available/Set</string>
 
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>

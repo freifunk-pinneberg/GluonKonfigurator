@@ -8,7 +8,7 @@ Die Kommunikation läuft über SSH.
 
 
 Warnung:
-Der Code ist möglichweise grausam. **Bitte verlasse dich aktuell nicht auf den Schutz deiner Anmeldedaten oder deines private Keys, aktuell wird alles im Klartext gespeichert.**
+Der Code ist möglicherweise grausam. **Bitte verlasse dich aktuell nicht auf den Schutz deiner Anmeldedaten oder deines private Keys, aktuell wird alles im Klartext gespeichert.**
 
 
 Falls du an diesem Projekt mitarbeiten willst und nicht weißt du du helfen kannst, hier eine kleine Todo-List:
