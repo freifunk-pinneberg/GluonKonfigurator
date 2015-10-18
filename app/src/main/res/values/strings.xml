@@ -39,6 +39,7 @@
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>
     <string name="host_name">Host name</string>
+    <string name="invalid_ipadress">Invalid IPAdress</string>
 
     <!-- Delete Host Dialog -->
     <string name="delete_host">Delete Host</string>

@@ -1,6 +1,7 @@
 package ff.pinneberg.gluonconfig.app;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
@@ -18,6 +19,7 @@ import com.unnamed.b.atv.view.AndroidTreeView;
 import ff.pinneberg.gluonconfig.app.TreeView.ChildNode;
 import ff.pinneberg.gluonconfig.app.TreeView.HeaderNode;
 import ff.pinneberg.gluonconfig.app.TreeView.SubHeaderNode;
+import ff.pinneberg.gluonconfig.app.helper.Utils;
 
 
 import java.lang.reflect.Type;
@@ -163,7 +165,6 @@ public class MainActivity extends ActionBarActivity {
             });
 
 
-
             for (int i = 0; i < superList.size(); i++) {
                 TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
                 for (HashMap<String, String> each : superList.get(i)) {
@@ -218,7 +219,6 @@ public class MainActivity extends ActionBarActivity {
     private void initVariables(){
         Intent i = new Intent(MainActivity.this,LocationService.class);
         startService(i);
-
         sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
     }
 
@@ -276,46 +276,56 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-        // set dialog message
         alertDialogBuilder
                 .setCancelable(true)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
-                        (dialog, id) -> {
-
-                            Gson gson = new Gson();
-                            hosts = gson.fromJson(sp.getString("hosts", ""), ArrayList.class);
-
-                            HashMap<String, String> newHost = new HashMap<>();
-                            newHost.put(KEY_HOSTNAME, hostname.getText().toString());
-                            newHost.put(KEY_IPADRESS, ipaddress.getText().toString());
-                            if (hosts == null) {
-                                hosts = new ArrayList<>();
-                            }
-                            hosts.add(newHost);
-
-                            sp.edit().putString("hosts", gson.toJson(hosts)).apply();
-                            rebuildTreeView();
-
-                            InputMethodManager imm =
-                                    (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                            dialog.dismiss();
-
-                        })
+                        null)
                 .setNegativeButton(Core.getResource().getString(R.string.cancel),
-                        (dialog, id) -> {
-                            InputMethodManager imm =
-                                    (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-                            dialog.dismiss();
-                        });
+                        null);
 
-        // create alert dialog
         final AlertDialog alertDialog = alertDialogBuilder.create();
 
 
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positive.setOnClickListener(view -> {
+                if (Utils.isIpAddress(ipaddress.getText().toString())) {
+
+                    Gson gson = new Gson();
+                    hosts = gson.fromJson(sp.getString("hosts", ""), ArrayList.class);
+
+                    HashMap<String, String> newHost = new HashMap<>();
+                    newHost.put(KEY_HOSTNAME, hostname.getText().toString());
+                    newHost.put(KEY_IPADRESS, ipaddress.getText().toString());
+                    if (hosts == null) {
+                        hosts = new ArrayList<>();
+                    }
+                    hosts.add(newHost);
+
+                    sp.edit().putString("hosts", gson.toJson(hosts)).apply();
+                    rebuildTreeView();
+
+                    InputMethodManager imm =
+                            (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.invalid_ipadress), Toast.LENGTH_SHORT).show();
+                }
+
+            });
+
+            Button negative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            negative.setOnClickListener(view -> {
+                InputMethodManager imm =
+                        (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                alertDialog.dismiss();
+            });
+        });
         // show it
         alertDialog.show();
+
         //Force Keyboard to be shown
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
