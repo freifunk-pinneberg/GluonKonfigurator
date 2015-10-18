@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.security.Security;
 import java.util.*;
@@ -43,6 +44,7 @@ public class SSHHelper{
 
     boolean connectingInProgress = false;
     boolean sshConnectionInUse = false;
+    boolean connectionFailed = false;
 
     final int connectingFinished = -1;
     final int errorOccured =-2;
@@ -70,77 +72,76 @@ public class SSHHelper{
         sshClient.addHostKeyVerifier(new PromiscuousVerifier());
         new Thread(() -> {
 
-            //Needs better error handling and big rework - looks horribletry
+            //Needs better error handling and big rework - looks horrible
             String username = sp.getString("auth_username","root");
 
             try {
-                    String auth_method = sp.getString("auth_method", "");
-                    if (auth_method.length() > 1) {
-                        if (auth_method.equals("password")) {
-                            String password = sp.getString("auth_password", "");
-                            if (password.length() > 1) {
-                                sshClient.connect(ipadress);
-                                sshClient.authPassword(username, password);
+                String auth_method = sp.getString("auth_method", "");
+                if (auth_method.length() > 1) {
+                    if (auth_method.equals("password")) {
+                        String password = sp.getString("auth_password", "");
+                        if (password.length() > 1) {
+                            sshClient.connect(ipadress);
+                            sshClient.authPassword(username, password);
 
-                                Message msg = Message.obtain();
-                                msg.what = connectingFinished;
-                                handler.sendMessage(msg);
-                            }else{
-                                toastError(Core.getResource().getString(R.string.error_no_auth_password));
-                            }
-                        } else if (auth_method.equals("key")) {
-                            String keypath = sp.getString(Settings.KEY_PATH, "");
-                            if (keypath.length() > 1) {
-                                File private_key = new File(keypath);
-                                if (private_key.exists()) {
-                                    if(sp.getString("auth_key_password","").length() >2){
+                            Message msg = Message.obtain();
+                            msg.what = connectingFinished;
+                            handler.sendMessage(msg);
+                        } else {
+                            toastError(Core.getResource().getString(R.string.error_no_auth_password));
+                        }
+                    } else if (auth_method.equals("key")) {
+                        String keypath = sp.getString(Settings.KEY_PATH, "");
+                        if (keypath.length() > 1) {
+                            File private_key = new File(keypath);
+                            if (private_key.exists()) {
+                                if (sp.getString("auth_key_password", "").length() > 2) {
 
-                                        KeyProvider keys = sshClient.loadKeys(private_key.getPath(),sp.getString("auth_key_password",""));
+                                    KeyProvider keys = sshClient.loadKeys(private_key.getPath(), sp.getString("auth_key_password", ""));
+                                    sshClient.connect(ipadress);
+                                    sshClient.authPublickey(username, keys);
+
+                                    Message msg = Message.obtain();
+                                    msg.what = connectingFinished;
+                                    handler.sendMessage(msg);
+                                } else {
+                                    final Scanner scanner = new Scanner(private_key);
+                                    boolean noPassword = true;
+                                    while (scanner.hasNextLine()) {
+                                        final String lineFromFile = scanner.nextLine();
+                                        if (lineFromFile.contains("ENCRYPTED")) {
+                                            Message msg = Message.obtain();
+                                            msg.what = ErrorSSHPassword;
+                                            handler.sendMessage(msg);
+                                            noPassword = false;
+                                            break;
+                                        }
+                                    }
+
+                                    if (noPassword) {
+                                        KeyProvider keys = sshClient.loadKeys(private_key.getPath());
                                         sshClient.connect(ipadress);
                                         sshClient.authPublickey(username, keys);
 
                                         Message msg = Message.obtain();
                                         msg.what = connectingFinished;
                                         handler.sendMessage(msg);
-                                    }else {
-                                        final Scanner scanner = new Scanner(private_key);
-                                        boolean noPassword=true;
-                                        while (scanner.hasNextLine()) {
-                                            final String lineFromFile = scanner.nextLine();
-                                            if (lineFromFile.contains("ENCRYPTED")) {
-                                                Message msg = Message.obtain();
-                                                msg.what = ErrorSSHPassword;
-                                                handler.sendMessage(msg);
-                                                noPassword = false;
-                                                break;
-                                            }
-                                        }
-
-                                        if(noPassword) {
-                                            KeyProvider keys = sshClient.loadKeys(private_key.getPath());
-                                            sshClient.connect(ipadress);
-                                            sshClient.authPublickey(username, keys);
-
-                                            Message msg = Message.obtain();
-                                            msg.what = connectingFinished;
-                                            handler.sendMessage(msg);
-                                        }
                                     }
-                                }else{
-                                    toastError(Core.getResource().getString(R.string.error_key_not_exist));
                                 }
-                            }else{
-                                toastError(Core.getResource().getString(R.string.error_no_auth_key));
+                            } else {
+                                toastError(Core.getResource().getString(R.string.error_key_not_exist));
                             }
+                        } else {
+                            toastError(Core.getResource().getString(R.string.error_no_auth_key));
                         }
-                    }else{
-                        toastError(Core.getResource().getString(R.string.error_no_auth_method));
                     }
-
-
+                } else {
+                    toastError(Core.getResource().getString(R.string.error_no_auth_method));
+                }
 
             }catch (IOException  e){
                 connectingInProgress = false;
+                connectionFailed = true;
                 Message msg = Message.obtain();
                 msg.what = errorOccured;
                 msg.obj = e.getMessage();
@@ -165,16 +166,6 @@ public class SSHHelper{
         }
     }
 
-
-   /* private void checkSSHClient(String ipadress){
-
-        if(sshClient == null){
-            sshClient = new SSHClient();
-        }
-        if(!sshClient.isConnected() && !connectingInProgress){
-            connect();
-        }
-    }*/
 
     private void toastError(String errorMessage){
         Toast.makeText(context,errorMessage,Toast.LENGTH_SHORT).show();
@@ -227,7 +218,6 @@ public class SSHHelper{
                         }
                     }
 
-
                     Session session = sshClient.startSession();
                     Session.Command cmd = session.exec(command);
                     returnval = IOUtils.readFully(cmd.getInputStream()).toString();
@@ -253,11 +243,13 @@ public class SSHHelper{
             }
 
             try {
-                Session session = sshClient.startSession();
-                Session.Command cmd = session.exec(command);
-                returnval = IOUtils.readFully(cmd.getInputStream()).toString();
-                cmd.join();
-                session.close();
+                if(sshClient.isConnected()) {
+                    Session session = sshClient.startSession();
+                    Session.Command cmd = session.exec(command);
+                    returnval = IOUtils.readFully(cmd.getInputStream()).toString();
+                    cmd.join();
+                    session.close();
+                }
             } catch (IOException e) {
                 Message msg = Message.obtain();
                 msg.what = errorOccured;
@@ -297,23 +289,18 @@ public class SSHHelper{
                         textView.setText(Core.getResource().getString(R.string.disabled));
                         break;
                     default:
-                        if (response.length() < 1) {
-                            textView.setText(Core.getResource().getString(R.string.not_available));
-                        } else {
-                            textView.setText(response);
+                        if(connectionFailed){
+                            textView.setText(Core.getResource().getString(R.string.not_connected));
+                        }else {
+                            if (response.length() < 1) {
+                                textView.setText(Core.getResource().getString(R.string.not_available));
+                            } else {
+                                textView.setText(response);
+                            }
                         }
                         break;
 
                 }
-                /*if (response.equals("1")) {
-
-                } else if (response.equals("0")) {
-                    textView.setText(Core.getResource().getString(R.string.disabled));
-                } else if (response.length() < 1) {
-
-                }else{
-                    textView.setText(response);
-                }*/
 
             });
         }).start();

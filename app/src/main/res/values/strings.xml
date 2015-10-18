@@ -35,6 +35,8 @@
     <string name="transmitting_power">Transmitting Power</string>
     
     <string name="not_available">Not Available/Set</string>
+    <string name="not_connected">Not connected</string>
+    <string name="not_connected_change">You cannot change the settings, when you are not connected to the node</string>
 
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>

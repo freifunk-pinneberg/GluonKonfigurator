@@ -183,9 +183,10 @@ public class MainActivity extends ActionBarActivity {
                             changeSetting(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
                             textField.setText(Core.getResource().getString(R.string.enabled));
 
-                        } else if (textvalue.equals(Core.getResource().getString(R.string.not_available))) {
-                            Core.toastError(Core.getResource().getString(R.string.error_not_available), getApplicationContext());
-                        } else {
+                        }else if(textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                            Toast.makeText(MainActivity.this,Core.getResource().getString(R.string.not_connected_change),Toast.LENGTH_LONG).show();
+                        }
+                        else {
                             if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
                                 editNumberPickerDialog(nodeData.data, textvalue, textField,nodeData.hostinfo.get(KEY_IPADRESS));
                             } else {
