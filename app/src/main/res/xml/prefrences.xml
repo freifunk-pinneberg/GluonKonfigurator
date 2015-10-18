@@ -29,6 +29,13 @@
             android:key="auth_key"
             android:title="@string/key"
             android:summary="@string/key_summary"/>
+
+    <EditTextPreference
+            android:key="auth_key_password"
+            android:title="@string/key_password"
+            android:summary="@string/key_password_summary"
+            android:inputType="textPassword"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/location">

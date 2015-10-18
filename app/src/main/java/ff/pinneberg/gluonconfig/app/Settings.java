@@ -33,7 +33,7 @@ public class Settings extends SettingsActivity {
 
 
     final int KeyCopyFinished = 0;
-    final int ErrorSSHPassword= 1;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,17 +51,22 @@ public class Settings extends SettingsActivity {
         final ListPreference authMethod = (ListPreference) findPreference("auth_method");
         final EditTextPreference authPassword = (EditTextPreference) findPreference("auth_password");
 
+
         final Preference authKey =  findPreference("auth_key");
+        final EditTextPreference authKeyPassword = (EditTextPreference) findPreference("auth_key_password");
 
         String authMethodSetting = sp.getString("auth_method","");
         if(authMethodSetting.length() < 1){
             authPassword.setEnabled(false);
             authKey.setEnabled(false);
+            authKeyPassword.setEnabled(false);
         }else if(authMethodSetting.equals("password")){
             authPassword.setEnabled(true);
+            authKeyPassword.setEnabled(true);
             authKey.setEnabled(false);
         }else{
             authKey.setEnabled(true);
+            authKeyPassword.setEnabled(true);
             authPassword.setEnabled(false);
         }
 
@@ -72,9 +77,11 @@ public class Settings extends SettingsActivity {
                 case 0:
                     authPassword.setEnabled(true);
                     authKey.setEnabled(false);
+                    authKeyPassword.setEnabled(false);
                     break;
                 case 1:
                     authKey.setEnabled(true);
+                    authKeyPassword.setEnabled(true);
                     authPassword.setEnabled(false);
                     break;
                 default:
@@ -178,10 +185,6 @@ public class Settings extends SettingsActivity {
                     pd.dismiss();
                     return true;
 
-                case ErrorSSHPassword:
-                    Toast.makeText(Settings.this,"This app does not support encrypted SSH Keys at the moment", Toast.LENGTH_LONG).show();
-                    return true;
-
             }
             return false;
         }
@@ -192,19 +195,7 @@ public class Settings extends SettingsActivity {
         if(sourceFile.exists()){
 
             try {
-                final Scanner scanner = new Scanner(sourceFile);
-                boolean noPassword=true;
-                while (scanner.hasNextLine()) {
-                    final String lineFromFile = scanner.nextLine();
-                    if(lineFromFile.contains("ENCRYPTED")) {
-                        Message msg = Message.obtain();
-                        msg.what = ErrorSSHPassword;
-                        handler.sendMessage(msg);
-                        noPassword = false;
-                        break;
-                    }
-                }
-                if(noPassword) {
+
                     File destinationFile = new File(getFilesDir() + FilePath.substring(FilePath.lastIndexOf("/") + 1));
                     BufferedInputStream is = new BufferedInputStream(new FileInputStream(sourceFile));
                     BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(destinationFile));
@@ -217,7 +208,6 @@ public class Settings extends SettingsActivity {
                     is.close();
                     os.close();
                     sp.edit().putString(KEY_PATH, destinationFile.getAbsolutePath()).apply();
-                }
             }catch (IOException e){
                 e.printStackTrace();
                 return false;

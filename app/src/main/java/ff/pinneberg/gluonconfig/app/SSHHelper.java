@@ -25,14 +25,12 @@ import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * Created by xilent on 13.08.15.
@@ -48,6 +46,8 @@ public class SSHHelper{
 
     final int connectingFinished = -1;
     final int errorOccured =-2;
+
+    final int ErrorSSHPassword= 1;
 
 
     //Replace Bouncecastle with Spongycastle
@@ -93,13 +93,39 @@ public class SSHHelper{
                             if (keypath.length() > 1) {
                                 File private_key = new File(keypath);
                                 if (private_key.exists()) {
-                                    KeyProvider keys = sshClient.loadKeys(private_key.getPath());
-                                    sshClient.connect(ipadress);
-                                    sshClient.authPublickey(username, keys);
+                                    if(sp.getString("auth_key_password","").length() >2){
 
-                                    Message msg = Message.obtain();
-                                    msg.what = connectingFinished;
-                                    handler.sendMessage(msg);
+                                        KeyProvider keys = sshClient.loadKeys(private_key.getPath(),sp.getString("auth_key_password",""));
+                                        sshClient.connect(ipadress);
+                                        sshClient.authPublickey(username, keys);
+
+                                        Message msg = Message.obtain();
+                                        msg.what = connectingFinished;
+                                        handler.sendMessage(msg);
+                                    }else {
+                                        final Scanner scanner = new Scanner(private_key);
+                                        boolean noPassword=true;
+                                        while (scanner.hasNextLine()) {
+                                            final String lineFromFile = scanner.nextLine();
+                                            if (lineFromFile.contains("ENCRYPTED")) {
+                                                Message msg = Message.obtain();
+                                                msg.what = ErrorSSHPassword;
+                                                handler.sendMessage(msg);
+                                                noPassword = false;
+                                                break;
+                                            }
+                                        }
+
+                                        if(noPassword) {
+                                            KeyProvider keys = sshClient.loadKeys(private_key.getPath());
+                                            sshClient.connect(ipadress);
+                                            sshClient.authPublickey(username, keys);
+
+                                            Message msg = Message.obtain();
+                                            msg.what = connectingFinished;
+                                            handler.sendMessage(msg);
+                                        }
+                                    }
                                 }else{
                                     toastError(Core.getResource().getString(R.string.error_key_not_exist));
                                 }
@@ -113,7 +139,7 @@ public class SSHHelper{
 
 
 
-            }catch (IOException e){
+            }catch (IOException  e){
                 connectingInProgress = false;
                 Message msg = Message.obtain();
                 msg.what = errorOccured;
@@ -366,6 +392,8 @@ public class SSHHelper{
             case errorOccured:
                 toastErrorLong((String) msg.obj);
                 break;
+            case ErrorSSHPassword:
+                toastErrorLong("SSH Key is encrypted, but no password is given");
 
 
         }

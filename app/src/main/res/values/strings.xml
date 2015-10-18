@@ -57,6 +57,8 @@
     <string name="password_summary">Password for password based SSH login</string>
     <string name="key">Key</string>
     <string name="key_summary">Private Key for key based SSH login</string>
+    <string name="key_password">Key password</string>
+    <string name="key_password_summary">Password for encrypted Key</string>
     <string name="username">Username</string>
     <string name="username_summary">Username for SSH login</string>
 
