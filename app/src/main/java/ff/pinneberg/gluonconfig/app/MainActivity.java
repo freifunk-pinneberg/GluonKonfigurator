@@ -1,7 +1,6 @@
 package ff.pinneberg.gluonconfig.app;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
@@ -142,9 +141,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void initTreeView(){
-        if(root == null) {
-            root = TreeNode.root();
-        }
+
+        root = TreeNode.root();
 
 
         Type type = new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType();
@@ -159,12 +157,11 @@ public class MainActivity extends ActionBarActivity {
             TreeNode parent = new TreeNode(new HeaderNode.HeaderText(eachHost.get(KEY_HOSTNAME))).setViewHolder(new HeaderNode(MainActivity.this));
 
 
-
-            parent.getViewHolder().getView().setOnLongClickListener(view -> {
-
+            parent.setLongClickListener((treeNode, o) -> {
                 deleteHostDialog(eachHost.get(KEY_HOSTNAME));
-                return true;
+                return false;
             });
+
 
 
             for (int i = 0; i < superList.size(); i++) {
@@ -213,14 +210,9 @@ public class MainActivity extends ActionBarActivity {
 
     private void rebuildTreeView(){
 
-        if(tView != null){
-            List<TreeNode> children = root.getChildren();
-            for(TreeNode child: children){
-                root.deleteChild(child);
-            }
-            rootLayout.removeView(tView.getView());
-            initTreeView();
-        }
+        rootLayout.removeAllViews();
+        initTreeView();
+
     }
 
     private void initVariables(){
@@ -302,7 +294,7 @@ public class MainActivity extends ActionBarActivity {
                             hosts.add(newHost);
 
                             sp.edit().putString("hosts", gson.toJson(hosts)).apply();
-                           // rebuildTreeView();
+                            rebuildTreeView();
 
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -363,7 +355,7 @@ public class MainActivity extends ActionBarActivity {
                     if(index >-1) {
                         hosts.remove(index);
                         sp.edit().putString("hosts", new Gson().toJson(hosts)).apply();
-                       // rebuildTreeView();
+                        rebuildTreeView();
                     }
 
                     dialog.dismiss();
@@ -431,15 +423,12 @@ public class MainActivity extends ActionBarActivity {
 
 
     private void editNumberPickerDialog(final HashMap<String,String> info,String curValue, final TextView valueField,String ipadress){
-        // get prompts.xml view
         LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View promptsView = layoutInflater.inflate(R.layout.alertdialog_numberpicker,null);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 MainActivity.this);
-
-        // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
         final NumberPicker numberPicker = (NumberPicker) promptsView.findViewById(R.id.alertNumberPicker);
@@ -456,8 +445,7 @@ public class MainActivity extends ActionBarActivity {
                 .setCancelable(false)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
-                            // get user input and set it to result
-                            // edit text
+
                             changeSetting(info.get(KEY_COMMAND)+"="+String.valueOf(numberPicker.getValue()));
                             valueField.setText(String.valueOf(numberPicker.getValue()));
                             dialog.dismiss();
