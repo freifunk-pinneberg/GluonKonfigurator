@@ -124,18 +124,6 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-
-    /*private void showLoadingAnimation(){
-        ProgressDialog dialog = new ProgressDialog(MainActivity.this);
-        dialog.setCancelable(true);
-
-        dialog.setTitle("Loading");
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setIndeterminate(true);
-        dialog.setIndeterminateDrawable(Core.getResource().getDrawable(R.drawable.clockwise_rotate));
-        dialog.show();
-    }*/
-
     private void initUI(){
         rootLayout = (RelativeLayout) findViewById(R.id.RootLayout);
         initTreeView();
@@ -190,7 +178,7 @@ public class MainActivity extends ActionBarActivity {
                             if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
                                 editNumberPickerDialog(nodeData.data, textvalue, textField,nodeData.hostinfo.get(KEY_IPADRESS));
                             } else {
-                                editDialog(nodeData.data, textvalue,nodeData.hostinfo.get(KEY_IPADRESS));
+                                editDialog(nodeData.data, textvalue,nodeData.hostinfo.get(KEY_IPADRESS),textField);
                             }
                         }
                     });
@@ -383,7 +371,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private void editDialog(final HashMap<String,String> info,String curValue,String ipadress){
+    private void editDialog(final HashMap<String,String> info,String curValue,String ipadress,TextView textView){
         // get prompts.xml view
         LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -406,7 +394,8 @@ public class MainActivity extends ActionBarActivity {
                 .setCancelable(false)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
-                            changeSetting(ipadress,info.get(KEY_COMMAND),userInput.getText().toString());
+                            changeSetting(ipadress,info.get(KEY_COMMAND)+"="+userInput.getText().toString());
+                            textView.setText(userInput.getText().toString());
                             InputMethodManager imm =
                                     (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
