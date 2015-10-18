@@ -13,7 +13,6 @@ Der Code ist möglicherweise grausam. **Bitte verlasse dich aktuell nicht auf de
 
 Falls du an diesem Projekt mitarbeiten willst und nicht weißt du du helfen kannst, hier eine kleine Todo-List:
 
-- Encrypted SSH Key Support (PEM PKCS8) Library beherrscht nur pkcs8 unencrypted
 - Log (Log errors and actions of the app)
 - Username, Password Encryption
 
