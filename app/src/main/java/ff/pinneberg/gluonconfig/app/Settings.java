@@ -30,6 +30,8 @@ public class Settings extends SettingsActivity {
     ProgressDialog pd;
 
 
+
+
     final int KeyCopyFinished = 0;
     final int ErrorSSHPassword= 1;
 
@@ -40,6 +42,8 @@ public class Settings extends SettingsActivity {
         addPreferencesFromResource(R.xml.prefrences);
         initUI();
     }
+
+
 
 
     private void initUI(){
@@ -121,7 +125,7 @@ public class Settings extends SettingsActivity {
         // set dialog message
         alertDialogBuilder
                 .setMessage("You have already copied a key. Should this key be deleted?")
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton("Yes", (dialog, id) -> {
                     // if this button is clicked, close
                     // current activity
@@ -172,6 +176,10 @@ public class Settings extends SettingsActivity {
                 case KeyCopyFinished:
 
                     pd.dismiss();
+                    return true;
+
+                case ErrorSSHPassword:
+                    Toast.makeText(Settings.this,"This app does not support encrypted SSH Keys at the moment", Toast.LENGTH_LONG).show();
                     return true;
 
             }
@@ -233,9 +241,6 @@ public class Settings extends SettingsActivity {
                 }
                 break;
 
-            case ErrorSSHPassword:
-                    Toast.makeText(getApplicationContext(),"This app does not support encrypted SSH Keys at the moment", Toast.LENGTH_LONG).show();
-                break;
         }
     }
 

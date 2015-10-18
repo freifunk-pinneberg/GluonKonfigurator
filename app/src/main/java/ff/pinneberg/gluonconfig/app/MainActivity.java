@@ -286,7 +286,7 @@ public class MainActivity extends ActionBarActivity {
 
         // set dialog message
         alertDialogBuilder
-                .setCancelable(false)
+                .setCancelable(true)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
 
