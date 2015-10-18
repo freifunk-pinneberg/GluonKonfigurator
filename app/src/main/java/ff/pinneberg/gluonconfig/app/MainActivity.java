@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
@@ -89,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
 
     public static String gluon_get = "uci get ";
     public static String gluon_set = "uci set ";
+    public static String gluon_commit = "uci commit ";
 
     public static String KEY_HEADER = "header";
     public static String KEY_COMMAND = "command";
@@ -242,8 +244,16 @@ public class MainActivity extends ActionBarActivity {
 
     private void changeSetting(String ipadress,String... commands){
 
+        Set<String> commit_modules = new HashSet<>();
         for(String command:commands) {
-            Core.sshHelper.executeCommandThread(gluon_set + command,ipadress);
+            if(command != null) {
+                commit_modules.add(command.split("\\.")[0]);
+                Core.sshHelper.executeCommandThread(gluon_set + command, ipadress);
+            }
+        }
+
+        for(String module:commit_modules){
+            Core.sshHelper.executeCommandThread(gluon_commit+module,ipadress);
         }
 
     }
