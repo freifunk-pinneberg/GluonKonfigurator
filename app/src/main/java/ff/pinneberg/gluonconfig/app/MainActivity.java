@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity {
     //Groups
     List<String> groupHeaders = new ArrayList<String>(){{
         add(Core.getResource().getString(R.string.general));
+        add(Core.getResource().getString(R.string.auto_updater));
         add(Core.getResource().getString(R.string.location));
         add(Core.getResource().getString(R.string.mesh));
         add(Core.getResource().getString(R.string.wifi));
@@ -48,12 +49,22 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_HEADER,Core.getResource().getString(R.string.hostname));
             put(KEY_COMMAND,"system.@system[0].hostname");
         }});
+
+    }};
+
+    ArrayList<HashMap<String,String >> auto_updater = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
-            put(KEY_HEADER,Core.getResource().getString(R.string.auto_update));
+            put(KEY_HEADER,Core.getResource().getString(R.string.status));
             put(KEY_COMMAND,"autoupdater.settings.enabled");
+        }});
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER,Core.getResource().getString(R.string.branch));
+            put(KEY_COMMAND,"autoupdater.settings.branch");
+            put(KEY_SELECT_VALUES,"uci show | grep =branch | awk '{print ($1)}' | cut -d. -f2 | awk '{print ($1)}' | cut -d\"=\" -f1");
         }});
 
     }};
+
 
 
     ArrayList<HashMap<String,String >> location = new ArrayList<HashMap<String, String>>(){{
@@ -99,6 +110,7 @@ public class MainActivity extends ActionBarActivity {
     //SuperList of all Children
     ArrayList<ArrayList<HashMap<String,String>>> superList = new ArrayList<ArrayList<HashMap<String, String>>>(){{
         add(general);
+        add(auto_updater);
         add(location);
         add(mesh);
         add(wifi);
@@ -140,7 +152,6 @@ public class MainActivity extends ActionBarActivity {
         initUI();
         Intent i = new Intent(MainActivity.this,SSHHelper.class);
         i.putExtra("data", superList);
-
 
     }
 
@@ -466,7 +477,7 @@ public class MainActivity extends ActionBarActivity {
         header.setText(info.get(KEY_HEADER));
 
 
-        Core.sshHelper.populateNumberPicker(numberPicker,curValue);
+        Core.sshHelper.populateNumberPicker(numberPicker,curValue,ipadress,info.get(KEY_SELECT_VALUES));
 
         // set dialog message
         alertDialogBuilder

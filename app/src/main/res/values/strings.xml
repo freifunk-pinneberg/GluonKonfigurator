@@ -30,7 +30,11 @@
     <string name="general">General</string>
     <string name="contact">Contact</string>
     <string name="hostname">Hostname</string>
-    <string name="auto_update">Auto-Update</string>
+
+
+    <string name="auto_updater">Auto-Updater</string>
+    <string name="status">Status</string>
+    <string name="branch">Branch</string>
 
 
     <string name="mesh">Mesh</string>

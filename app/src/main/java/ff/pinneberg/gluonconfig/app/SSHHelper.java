@@ -1,37 +1,27 @@
 package ff.pinneberg.gluonconfig.app;
 
-import android.app.ProgressDialog;
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.provider.*;
-import android.util.Log;
+import android.text.InputType;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
-import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.ConnectException;
 import java.net.InetAddress;
 import java.security.Security;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * Created by xilent on 13.08.15.
@@ -307,7 +297,7 @@ public class SSHHelper{
 
     }
 
-    public void populateNumberPicker(final NumberPicker numberPicker, final String currentval){
+    public void populateNumberPicker(final NumberPicker numberPicker, final String currentval,String ipadress,String select_value_ssh){
         final Handler handler = new Handler();
        // checkSSHClient();
         new Thread(() -> {
@@ -329,12 +319,35 @@ public class SSHHelper{
 
                 handler.post(() -> {
 
+                    EditText numberPickerChild = (EditText) numberPicker.getChildAt(0);
+                    numberPickerChild.setFocusable(false);
+                    numberPickerChild.setInputType(InputType.TYPE_NULL);
+
                     numberPicker.setDisplayedValues(select_vals);
                     numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
                     numberPicker.setMinValue(0);
                     numberPicker.setMaxValue(select_vals.length -1);
                     numberPicker.setValue(Integer.parseInt(currentval) -1 );
                 });
+            }else{
+                String[] select_vals = executeCommandwithoutCorrection(select_value_ssh,ipadress).split("\n");
+
+
+                handler.post(() -> {
+
+                    EditText numberPickerChild = (EditText) numberPicker.getChildAt(0);
+                    numberPickerChild.setFocusable(false);
+                    numberPickerChild.setInputType(InputType.TYPE_NULL);
+
+                    numberPicker.setDisplayedValues(select_vals);
+                    numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                    numberPicker.setMinValue(0);
+                    numberPicker.setMaxValue(select_vals.length -1);
+                    //numberPicker.setValue(selectable_va.indexOf(currentval));
+                });
+
+
+
             }
         }).start();
     }
