@@ -32,12 +32,30 @@ public class MainActivity extends ActionBarActivity {
 
     //Groups
     List<String> groupHeaders = new ArrayList<String>(){{
+        add(Core.getResource().getString(R.string.general));
         add(Core.getResource().getString(R.string.location));
         add(Core.getResource().getString(R.string.mesh));
         add(Core.getResource().getString(R.string.wifi));
     }};
 
     //Group Content
+    ArrayList<HashMap<String,String >> general = new ArrayList<HashMap<String, String>>(){{
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.contact));
+            put(KEY_COMMAND,"gluon-node-info.@owner[0].contact");
+        }});
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER,Core.getResource().getString(R.string.hostname));
+            put(KEY_COMMAND,"system.@system[0].hostname");
+        }});
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER,Core.getResource().getString(R.string.auto_update));
+            put(KEY_COMMAND,"autoupdater.settings.enabled");
+        }});
+
+    }};
+
+
     ArrayList<HashMap<String,String >> location = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
                put(KEY_HEADER, Core.getResource().getString(R.string.latitude));
@@ -80,6 +98,7 @@ public class MainActivity extends ActionBarActivity {
 
     //SuperList of all Children
     ArrayList<ArrayList<HashMap<String,String>>> superList = new ArrayList<ArrayList<HashMap<String, String>>>(){{
+        add(general);
         add(location);
         add(mesh);
         add(wifi);
@@ -102,8 +121,7 @@ public class MainActivity extends ActionBarActivity {
 
     public static String KEY_HOSTNAME = "hostname";
     public static String KEY_IPADRESS = "ipadress";
-
-    ExpandableListAdapter expandableListAdapter;
+    
     SharedPreferences sp;
     ArrayList<HashMap<String,String>> hosts;
     AndroidTreeView tView;
