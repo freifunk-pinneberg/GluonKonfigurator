@@ -308,7 +308,7 @@ public class SSHHelper{
                     iterations = 20;
                 }
                 ArrayList<String> selectable_values = new ArrayList<>();
-                for(int i= 1; i<=iterations;i++){
+                for(int i= 0; i<=iterations;i++){
                     selectable_values.add(i +" dBm (" +ConversionHelper.dmtomw_int(i)+ " mW )");
                 }
 
@@ -327,7 +327,7 @@ public class SSHHelper{
                     numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
                     numberPicker.setMinValue(0);
                     numberPicker.setMaxValue(select_vals.length -1);
-                    numberPicker.setValue(Integer.parseInt(currentval) -1 );
+                    numberPicker.setValue(Integer.parseInt(currentval));
                 });
             }else{
                 String[] select_vals = executeCommandwithoutCorrection(select_value_ssh,ipadress).split("\n");

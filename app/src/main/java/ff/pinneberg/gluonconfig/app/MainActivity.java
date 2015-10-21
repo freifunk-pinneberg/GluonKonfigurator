@@ -8,6 +8,7 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -277,6 +278,7 @@ public class MainActivity extends ActionBarActivity {
         for(String command:commands) {
             if(command != null) {
                 commit_modules.add(command.split("\\.")[0]);
+                Log.d(getClass().getSimpleName(), gluon_set + command);
                 Core.sshHelper.executeCommandThread(gluon_set + command, ipadress);
             }
         }
@@ -485,7 +487,7 @@ public class MainActivity extends ActionBarActivity {
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
 
-                            changeSetting(info.get(KEY_COMMAND)+"="+String.valueOf(numberPicker.getValue()));
+                            changeSetting(ipadress,info.get(KEY_COMMAND)+"="+String.valueOf(numberPicker.getValue()));
                             valueField.setText(String.valueOf(numberPicker.getValue()));
                             dialog.dismiss();
                         })
