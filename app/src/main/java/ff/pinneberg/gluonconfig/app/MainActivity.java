@@ -478,7 +478,6 @@ public class MainActivity extends ActionBarActivity {
         final TextView header = (TextView) promptsView.findViewById(R.id.alertTitle);
         header.setText(info.get(KEY_HEADER));
 
-
         Core.sshHelper.populateNumberPicker(numberPicker,curValue,ipadress,info.get(KEY_SELECT_VALUES));
 
         // set dialog message
@@ -486,9 +485,14 @@ public class MainActivity extends ActionBarActivity {
                 .setCancelable(false)
                 .setPositiveButton(Core.getResource().getString(R.string.ok),
                         (dialog, id) -> {
-
-                            changeSetting(ipadress,info.get(KEY_COMMAND)+"="+String.valueOf(numberPicker.getValue()));
-                            valueField.setText(String.valueOf(numberPicker.getValue()));
+                            String display_value = numberPicker.getDisplayedValues()[numberPicker.getValue()];
+                            if(display_value.contains("mW")) {
+                                changeSetting(ipadress, info.get(KEY_COMMAND) + "=" + String.valueOf(numberPicker.getValue()));
+                                valueField.setText(String.valueOf(numberPicker.getValue()));
+                            }else{
+                                changeSetting(ipadress, info.get(KEY_COMMAND) + "=" + display_value);
+                                valueField.setText(display_value);
+                            }
                             dialog.dismiss();
                         })
                 .setNegativeButton(Core.getResource().getString(R.string.cancel),
