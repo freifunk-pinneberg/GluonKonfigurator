@@ -264,7 +264,7 @@ public class SSHHelper{
     }
 
 
-    public void setText(final TextView textView, final String command,String ipadress){
+    public void setText(final TextView textView, final String command,String ipadress,boolean correction){
         final Handler handler = new Handler();
 
         //checkSSHClient();
@@ -272,25 +272,29 @@ public class SSHHelper{
             final String response = executeCommand(command,ipadress);
 
             handler.post(() -> {
-                switch (response) {
-                    case "1":
-                        textView.setText(Core.getResource().getString(R.string.enabled));
-                        break;
-                    case "0":
-                        textView.setText(Core.getResource().getString(R.string.disabled));
-                        break;
-                    default:
-                        if(connectionFailed){
-                            textView.setText(Core.getResource().getString(R.string.not_connected));
-                        }else {
-                            if (response.length() < 1) {
-                                textView.setText(Core.getResource().getString(R.string.not_available));
+                if(correction) {
+                    switch (response) {
+                        case "1":
+                            textView.setText(Core.getResource().getString(R.string.enabled));
+                            break;
+                        case "0":
+                            textView.setText(Core.getResource().getString(R.string.disabled));
+                            break;
+                        default:
+                            if (connectionFailed) {
+                                textView.setText(Core.getResource().getString(R.string.not_connected));
                             } else {
-                                textView.setText(response);
+                                if (response.length() < 1) {
+                                    textView.setText(Core.getResource().getString(R.string.not_available));
+                                } else {
+                                    textView.setText(response);
+                                }
                             }
-                        }
-                        break;
+                            break;
 
+                    }
+                }else{
+                    textView.setText(response);
                 }
 
             });

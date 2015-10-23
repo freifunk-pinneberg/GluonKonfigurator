@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity {
 
     //Groups
     List<String> groupHeaders = new ArrayList<String>(){{
+        add(Core.getResource().getString(R.string.info));
         add(Core.getResource().getString(R.string.general));
         add(Core.getResource().getString(R.string.auto_updater));
         add(Core.getResource().getString(R.string.location));
@@ -41,6 +42,15 @@ public class MainActivity extends ActionBarActivity {
     }};
 
     //Group Content
+
+    ArrayList<HashMap<String,String >> info = new ArrayList<HashMap<String, String>>(){{
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.connected_clients));
+            put(KEY_VALUE,"grep -cEo \"\\[.*W.*\\]+\" /sys/kernel/debug/batman_adv/bat0/transtable_local");
+        }});
+
+    }};
+
     ArrayList<HashMap<String,String >> general = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.contact));
@@ -58,6 +68,7 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_HEADER,Core.getResource().getString(R.string.status));
             put(KEY_COMMAND,"autoupdater.settings.enabled");
         }});
+
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.branch));
             put(KEY_COMMAND,"autoupdater.settings.branch");
@@ -110,6 +121,7 @@ public class MainActivity extends ActionBarActivity {
 
     //SuperList of all Children
     ArrayList<ArrayList<HashMap<String,String>>> superList = new ArrayList<ArrayList<HashMap<String, String>>>(){{
+        add(info);
         add(general);
         add(auto_updater);
         add(location);
@@ -209,7 +221,7 @@ public class MainActivity extends ActionBarActivity {
                         else {
                             if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
                                 editNumberPickerDialog(nodeData.data, textvalue, textField,nodeData.hostinfo.get(KEY_IPADRESS));
-                            } else {
+                            } else if (!nodeData.data.containsKey(KEY_VALUE)) {
                                 editDialog(nodeData.data, textvalue,nodeData.hostinfo.get(KEY_IPADRESS),textField);
                             }
                         }

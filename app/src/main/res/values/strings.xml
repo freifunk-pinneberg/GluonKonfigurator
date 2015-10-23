@@ -26,6 +26,9 @@
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="share_location">Share Location</string>
+    
+    <string name="info">Info</string>
+    <string name="connected_clients">Connected Clients</string>
 
     <string name="general">General</string>
     <string name="contact">Contact</string>
