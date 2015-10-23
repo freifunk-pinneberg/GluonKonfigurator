@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import com.unnamed.b.atv.model.TreeNode;
 import com.unnamed.b.atv.view.AndroidTreeView;
 import ff.pinneberg.gluonconfig.app.TreeView.ChildNode;
+import ff.pinneberg.gluonconfig.app.TreeView.ChildNodeNoDetail;
 import ff.pinneberg.gluonconfig.app.TreeView.HeaderNode;
 import ff.pinneberg.gluonconfig.app.TreeView.SubHeaderNode;
 import ff.pinneberg.gluonconfig.app.helper.Utils;
@@ -47,6 +48,13 @@ public class MainActivity extends ActionBarActivity {
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.connected_clients));
             put(KEY_VALUE,"grep -cEo \"\\[.*W.*\\]+\" /sys/kernel/debug/batman_adv/bat0/transtable_local");
+        }});
+
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.reboot_to_config));
+            put(KEY_EXECUTE, "uci set gluon-setup-mode.@setup_mode[0].enabled='1';" +
+                    "uci commit gluon-setup-mode;" +
+                    "reboot;");
         }});
 
     }};
@@ -142,7 +150,7 @@ public class MainActivity extends ActionBarActivity {
     public static String KEY_COMMAND2_DISABLE = "command2_disable";
     public static String KEY_SELECT_VALUES = "select_values";
     public static String KEY_VALUE = "value";
-
+    public static String KEY_EXECUTE = "execute";
 
     public static String KEY_HOSTNAME = "hostname";
     public static String KEY_IPADRESS = "ipadress";
@@ -200,33 +208,43 @@ public class MainActivity extends ActionBarActivity {
             for (int i = 0; i < superList.size(); i++) {
                 TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
                 for (HashMap<String, String> each : superList.get(i)) {
-                    TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each,eachHost)).setViewHolder(new ChildNode(MainActivity.this));
-                    child.setClickListener((treeNode, o) -> {
-                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+                    if (each.containsKey(KEY_EXECUTE)) {
 
-                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                        TreeNode child = new TreeNode(new ChildNodeNoDetail.ChildNodeData(each,eachHost)).setViewHolder(new ChildNodeNoDetail(MainActivity.this));
+                        child.setClickListener((treeNode, o) -> {
+                            ChildNodeNoDetail.ChildNodeData nodeData = (ChildNodeNoDetail.ChildNodeData) o;
+                            executeCommands(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_EXECUTE));
+                        });
+                        subCategory.addChild(child);
 
-                        String textvalue = textField.getText().toString();
-                        if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
-                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+                    } else {
+                        TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this));
+                        child.setClickListener((treeNode, o) -> {
+                            ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
 
-                            textField.setText(Core.getResource().getString(R.string.disabled));
-                        } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
-                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
-                            textField.setText(Core.getResource().getString(R.string.enabled));
+                            TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
 
-                        }else if(textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
-                            Toast.makeText(MainActivity.this,Core.getResource().getString(R.string.not_connected_change),Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
-                                editNumberPickerDialog(nodeData.data, textvalue, textField,nodeData.hostinfo.get(KEY_IPADRESS));
-                            } else if (!nodeData.data.containsKey(KEY_VALUE)) {
-                                editDialog(nodeData.data, textvalue,nodeData.hostinfo.get(KEY_IPADRESS),textField);
+                            String textvalue = textField.getText().toString();
+                            if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
+                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+
+                                textField.setText(Core.getResource().getString(R.string.disabled));
+                            } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
+                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
+                                textField.setText(Core.getResource().getString(R.string.enabled));
+
+                            } else if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                            } else {
+                                if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
+                                    editNumberPickerDialog(nodeData.data, textvalue, textField, nodeData.hostinfo.get(KEY_IPADRESS));
+                                } else if (!nodeData.data.containsKey(KEY_VALUE)) {
+                                    editDialog(nodeData.data, textvalue, nodeData.hostinfo.get(KEY_IPADRESS), textField);
+                                }
                             }
-                        }
-                    });
-                    subCategory.addChild(child);
+                        });
+                        subCategory.addChild(child);
+                    }
                 }
                 parent.addChild(subCategory);
             }
@@ -299,6 +317,12 @@ public class MainActivity extends ActionBarActivity {
             Core.sshHelper.executeCommandThread(gluon_commit+module,ipadress);
         }
 
+    }
+
+    private void executeCommands(String ipadress,String... commands){
+        for(String command:commands){
+            Core.sshHelper.executeCommandThread(command,ipadress);
+        }
     }
 
 

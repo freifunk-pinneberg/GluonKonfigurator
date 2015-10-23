@@ -29,6 +29,7 @@
     
     <string name="info">Info</string>
     <string name="connected_clients">Connected Clients</string>
+    <string name="reboot_to_config">Reboot to config Mode</string>
 
     <string name="general">General</string>
     <string name="contact">Contact</string>
