@@ -40,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
         add(Core.getResource().getString(R.string.location));
         add(Core.getResource().getString(R.string.mesh));
         add(Core.getResource().getString(R.string.wifi));
+        add(Core.getResource().getString(R.string.expert));
     }};
 
     //Group Content
@@ -47,12 +48,14 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> info = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.connected_clients));
-            put(KEY_VALUE,"grep -cEo \"\\[.*W.*\\]+\" /sys/kernel/debug/batman_adv/bat0/transtable_local");
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT);
+            put(KEY_COMMAND,"grep -cEo \"\\[.*W.*\\]+\" /sys/kernel/debug/batman_adv/bat0/transtable_local");
         }});
 
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.reboot_to_config));
-            put(KEY_EXECUTE, "uci set gluon-setup-mode.@setup_mode[0].enabled='1';" +
+            put(KEY_CONTENT_TYPE,CONTENT_NOTEXT);
+            put(KEY_COMMAND, "uci set gluon-setup-mode.@setup_mode[0].enabled='1';" +
                     "uci commit gluon-setup-mode;" +
                     "reboot;");
         }});
@@ -62,10 +65,12 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> general = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.contact));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
             put(KEY_COMMAND,"gluon-node-info.@owner[0].contact");
         }});
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.hostname));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
             put(KEY_COMMAND,"system.@system[0].hostname");
         }});
 
@@ -74,11 +79,13 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> auto_updater = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.status));
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
             put(KEY_COMMAND,"autoupdater.settings.enabled");
         }});
 
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.branch));
+            put(KEY_CONTENT_TYPE,CONTENT_NUMBERPICKER);
             put(KEY_COMMAND,"autoupdater.settings.branch");
             put(KEY_SELECT_VALUES,"uci show | grep =branch | awk '{print ($1)}' | cut -d. -f2 | awk '{print ($1)}' | cut -d\"=\" -f1");
         }});
@@ -89,15 +96,18 @@ public class MainActivity extends ActionBarActivity {
 
     ArrayList<HashMap<String,String >> location = new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
-               put(KEY_HEADER, Core.getResource().getString(R.string.latitude));
-               put(KEY_COMMAND,"gluon-node-info.@location[0].latitude");
+            put(KEY_HEADER, Core.getResource().getString(R.string.latitude));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
+            put(KEY_COMMAND,"gluon-node-info.@location[0].latitude");
         }});
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.longitude));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
             put(KEY_COMMAND,"gluon-node-info.@location[0].longitude");
         }});
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.share_location));
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
             put(KEY_COMMAND,"gluon-node-info.@location[0].share_location");
         }});
 
@@ -106,11 +116,13 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> mesh= new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.mesh_on_WAN));
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
             put(KEY_COMMAND,"network.mesh_wan.auto");
         }});
         add(new HashMap<String, String>(){{
             put(KEY_HEADER,Core.getResource().getString(R.string.mesh_on_LAN));
             put(KEY_COMMAND,"network.mesh_lan.auto");
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
             put(KEY_COMMAND2_ENABLE,"network.client.ifname=\"bat0\"");
             put(KEY_COMMAND2_DISABLE,"network.client.ifname=\"bat0 $(cat /lib/gluon/core/sysconfig/lan_ifname)\"");
         }});
@@ -120,6 +132,7 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<HashMap<String,String >> wifi= new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.transmitting_power));
+            put(KEY_CONTENT_TYPE,CONTENT_NUMBERPICKER);
             put(KEY_COMMAND,"wireless.radio0.txpower");
             put(KEY_SELECT_VALUES,"iwinfo client0 txpower");
         }});
@@ -137,14 +150,13 @@ public class MainActivity extends ActionBarActivity {
         add(wifi);
     }};
 
-    //dBm Conversion Table
-
 
     public static String gluon_get = "uci get ";
     public static String gluon_set = "uci set ";
     public static String gluon_commit = "uci commit ";
 
     public static String KEY_HEADER = "header";
+    public static String KEY_CONTENT_TYPE = "content";
     public static String KEY_COMMAND = "command";
     public static String KEY_COMMAND2_ENABLE = "command2_enable";
     public static String KEY_COMMAND2_DISABLE = "command2_disable";
@@ -154,6 +166,17 @@ public class MainActivity extends ActionBarActivity {
 
     public static String KEY_HOSTNAME = "hostname";
     public static String KEY_IPADRESS = "ipadress";
+
+
+    //Content Type
+    public static String CONTENT_TEXT = "1";
+    public static String CONTENT_TEXT_EDIT = "2";
+    public static String CONTENT_NOTEXT = "3";
+    public static String CONTENT_NUMBERPICKER = "4";
+    public static String CONTENT_LIST = "5";
+    public static String CONTENT_MULTISELECTLIST = "6";
+    public static String CONTENT_SWITCH = "7";
+
     
     SharedPreferences sp;
     ArrayList<HashMap<String,String>> hosts;
@@ -208,43 +231,87 @@ public class MainActivity extends ActionBarActivity {
             for (int i = 0; i < superList.size(); i++) {
                 TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
                 for (HashMap<String, String> each : superList.get(i)) {
-                    if (each.containsKey(KEY_EXECUTE)) {
 
-                        TreeNode child = new TreeNode(new ChildNodeNoDetail.ChildNodeData(each,eachHost)).setViewHolder(new ChildNodeNoDetail(MainActivity.this));
-                        child.setClickListener((treeNode, o) -> {
-                            ChildNodeNoDetail.ChildNodeData nodeData = (ChildNodeNoDetail.ChildNodeData) o;
-                            executeCommands(nodeData.hostinfo.get(KEY_IPADRESS),nodeData.data.get(KEY_EXECUTE));
-                        });
-                        subCategory.addChild(child);
+                    switch(each.get(KEY_CONTENT_TYPE)){
+                        case "1": // CONTENT_TEXT
+                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this)));
+                            break;
 
-                    } else {
-                        TreeNode child = new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this));
-                        child.setClickListener((treeNode, o) -> {
-                            ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+                        case "2": //CONTENT_TEXT_EDIT
+                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                    .setClickListener((treeNode, o) -> {
+                                                ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
 
-                            TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                                TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                                String textvalue = textField.getText().toString();
+                                                if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                                    Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    editDialog(nodeData.data, textvalue, nodeData.hostinfo.get(KEY_IPADRESS), textField);
+                                                }
+                                            }
 
-                            String textvalue = textField.getText().toString();
-                            if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
-                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+                                        ));
+                            break;
 
-                                textField.setText(Core.getResource().getString(R.string.disabled));
-                            } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
-                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
-                                textField.setText(Core.getResource().getString(R.string.enabled));
+                        case "3": //CONTENT_NOTEXT
+                            subCategory.addChild(new TreeNode(new ChildNodeNoDetail.ChildNodeData(each,eachHost)).setViewHolder(new ChildNodeNoDetail(MainActivity.this))
+                                    .setClickListener((treeNode, o) -> {
+                                        ChildNodeNoDetail.ChildNodeData nodeData = (ChildNodeNoDetail.ChildNodeData) o;
+                                        executeCommands(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND));
+                                    })
+                                );
+                            break;
 
-                            } else if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
-                                Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
-                            } else {
-                                if (nodeData.data.containsKey(KEY_SELECT_VALUES)) {
-                                    editNumberPickerDialog(nodeData.data, textvalue, textField, nodeData.hostinfo.get(KEY_IPADRESS));
-                                } else if (!nodeData.data.containsKey(KEY_VALUE)) {
-                                    editDialog(nodeData.data, textvalue, nodeData.hostinfo.get(KEY_IPADRESS), textField);
-                                }
-                            }
-                        });
-                        subCategory.addChild(child);
+                        case "4": //CONTENT_NUMBERPICKER
+                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                    .setClickListener((treeNode, o) -> {
+                                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                        String textvalue = textField.getText().toString();
+                                        if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                            Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                        } else {
+                                            editNumberPickerDialog(nodeData.data, textvalue, textField, nodeData.hostinfo.get(KEY_IPADRESS));
+                                        }
+                                    }));
+                            break;
+
+                        case "5": //CONTENT_LIST
+                            break;
+
+                        case "6": //CONTENT_MULTISELECTLIST
+                            break;
+
+                        case "7": //CONTENT_SWITCH
+                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                    .setClickListener((treeNode, o) -> {
+                                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+
+                                        String textvalue = textField.getText().toString();
+
+                                        if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
+                                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+
+                                            textField.setText(Core.getResource().getString(R.string.disabled));
+                                        } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
+                                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
+                                            textField.setText(Core.getResource().getString(R.string.enabled));
+
+                                        } else if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                            Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                        }
+                                    }));
+                            break;
+
+
+                        default:
+                            break;
                     }
+
                 }
                 parent.addChild(subCategory);
             }

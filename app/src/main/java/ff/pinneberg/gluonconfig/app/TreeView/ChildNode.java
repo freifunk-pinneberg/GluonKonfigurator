@@ -31,8 +31,8 @@ public class ChildNode extends TreeNode.BaseNodeViewHolder<ChildNode.ChildNodeDa
         header.setTypeface(null, Typeface.BOLD);
         TextView description = (TextView) view.findViewById(R.id.childNode_itemvalue);
         header.setText(value.data.get(MainActivity.KEY_HEADER));
-        if(value.data.containsKey(MainActivity.KEY_VALUE)){
-            Core.sshHelper.setText(description,value.data.get(MainActivity.KEY_VALUE),value.hostinfo.get(MainActivity.KEY_IPADRESS),false);
+        if(value.data.get(MainActivity.KEY_CONTENT_TYPE).equals(MainActivity.CONTENT_TEXT)){
+            Core.sshHelper.setText(description,value.data.get(MainActivity.KEY_COMMAND),value.hostinfo.get(MainActivity.KEY_IPADRESS),false);
         }else {
             Core.sshHelper.setText(description, MainActivity.gluon_get + value.data.get(MainActivity.KEY_COMMAND), value.hostinfo.get(MainActivity.KEY_IPADRESS),true);
         }

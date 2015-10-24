@@ -151,6 +151,7 @@ public class LocationService extends Service {
 
 
                 for(HashMap<String,String> eachHost: hosts){
+
                     for(String hostname: selected_nodes){
                         if(eachHost.get(MainActivity.KEY_HOSTNAME).equals(hostname)){
                             Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].latitude=" + loc.getLatitude(),eachHost.get(MainActivity.KEY_IPADRESS));

@@ -40,7 +40,6 @@
 
     <PreferenceCategory android:title="@string/location">
 
-
         <CheckBoxPreference
             android:title="@string/automatic_location"
             android:summary="@string/automatic_location_summary"
@@ -85,6 +84,17 @@
                 android:key="min_distance"
                 android:defaultValue="10"
                 android:inputType="numberDecimal"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/additional_settings">
+        <CheckBoxPreference
+            android:title="@string/expert_mode"
+            android:key="expert_mode"
+            android:summary="@string/expert_mode_summary" />
+
+
 
     </PreferenceCategory>
 

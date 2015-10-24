@@ -26,11 +26,7 @@ public class Settings extends SettingsActivity {
     SharedPreferences sp;
     ProgressDialog pd;
 
-
-
-
     final int KeyCopyFinished = 0;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,15 +36,11 @@ public class Settings extends SettingsActivity {
         initUI();
     }
 
-
-
-
     private void initUI(){
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         final ListPreference authMethod = (ListPreference) findPreference("auth_method");
         final EditTextPreference authPassword = (EditTextPreference) findPreference("auth_password");
         final MultiSelectListPreference selected_nodes = (MultiSelectListPreference) findPreference("selected_nodes");
-
 
         final Preference authKey =  findPreference("auth_key");
         final EditTextPreference authKeyPassword = (EditTextPreference) findPreference("auth_key_password");
@@ -99,7 +91,6 @@ public class Settings extends SettingsActivity {
 
             return false;
         });
-
 
         ArrayList<String> nodeNames = new ArrayList<>();
         ArrayList<HashMap<String,String>> hosts = new Gson().fromJson(sp.getString("hosts", ""), new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType());

@@ -53,6 +53,11 @@
     <string name="not_connected">Not connected</string>
     <string name="not_connected_change">You cannot change the settings, when you are not connected to the node</string>
 
+
+    <!-- Expert Mode -->
+    <string name="expert">Expert</string>
+
+
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>
     <string name="host_name">Host name</string>
@@ -65,6 +70,7 @@
     
     <!-- Settings -->
     <string name="settings">Settings</string>
+    <string name="additional_settings">Additional Settings</string>
     <string name="authentication">Authentication</string>
     <string name="host">Host</string>
     <string name="host_summary">iP of Host (v4,v6)</string>
@@ -80,6 +86,10 @@
     <string name="username_summary">Username for SSH login</string>
     <string name="select_nodes">Select nodes</string>
     <string name="select_nodes_summary">Nodes which will be updated based on location</string>
+
+
+    <string name="expert_mode">Expert Mode</string>
+    <string name="expert_mode_summary">Enable additional modules. For experts only!</string>
 
 
     <string name="automatic_location">Location Update</string>
