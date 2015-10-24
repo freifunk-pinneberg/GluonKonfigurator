@@ -6,10 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.InputType;
-import android.widget.EditText;
-import android.widget.NumberPicker;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.IOUtils;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -302,6 +299,35 @@ public class SSHHelper{
             });
         }).start();
 
+    }
+
+    public void populateArrayAdapter(final ListView listView,final ArrayAdapter<String> arrayAdapter,String ipadress,String select_value_ssh){
+        final Handler handler = new Handler();
+
+        new Thread(() -> {
+
+            String[] values = executeCommandwithoutCorrection(select_value_ssh,ipadress).split("\n");
+            String[] selectable_values = new String[values.length];
+            String[] enabled = new String[values.length];
+
+            for(int i=0;i < values.length;i++){
+                String[] split = values[i].split("\\.");
+                selectable_values[i] = split[0];
+                enabled[i] = split[1];
+            }
+
+            handler.post(() -> {
+
+                for( int j=0;j<enabled.length;j++) {
+                    listView.setItemChecked(j,enabled[j].equals("1"));
+                }
+
+                arrayAdapter.addAll(selectable_values);
+                //arrayAdapter.sort(String::compareToIgnoreCase);
+
+            });
+
+        }).start();
     }
 
     public void populateNumberPicker(final NumberPicker numberPicker, final String currentval,String ipadress,String select_value_ssh){

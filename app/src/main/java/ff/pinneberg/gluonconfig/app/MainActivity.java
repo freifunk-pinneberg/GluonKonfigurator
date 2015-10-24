@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -87,7 +88,7 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_HEADER,Core.getResource().getString(R.string.branch));
             put(KEY_CONTENT_TYPE,CONTENT_NUMBERPICKER);
             put(KEY_COMMAND,"autoupdater.settings.branch");
-            put(KEY_SELECT_VALUES,"uci show | grep =branch | awk '{print ($1)}' | cut -d. -f2 | awk '{print ($1)}' | cut -d\"=\" -f1");
+            put(KEY_SELECT_VALUES,"uci show | grep =branch | cut -d. -f2  | cut -d\"=\" -f1");
         }});
 
     }};
@@ -139,6 +140,18 @@ public class MainActivity extends ActionBarActivity {
 
     }};
 
+    ArrayList<HashMap<String,String >> expert = new ArrayList<HashMap<String, String>>(){{
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.gateways));
+            put(KEY_CONTENT_TYPE,CONTENT_MULTISELECTLIST);
+            put(KEY_MULTILIST_CHANGE,"fastd.mesh_vpn_backbone_peer_{value}.enabled");
+            put(KEY_COMMAND,"uci show| grep fastd.mesh_vpn_backbone_peer | grep enabled=1 | sed s'/[_=]/./g' | cut -d. -f 6| tr '\\n' ','");
+            put(KEY_SELECT_VALUES,"uci show| grep fastd.mesh_vpn_backbone_peer | grep enabled | sed s'/[_=]/./g' | cut -d. -f 6,8");
+            put(KEY_FINISH_COMMAND,"/etc/init.d/fastd restart");
+        }});
+
+    }};
+
 
     //SuperList of all Children
     ArrayList<ArrayList<HashMap<String,String>>> superList = new ArrayList<ArrayList<HashMap<String, String>>>(){{
@@ -148,6 +161,7 @@ public class MainActivity extends ActionBarActivity {
         add(location);
         add(mesh);
         add(wifi);
+        add(expert);
     }};
 
 
@@ -161,8 +175,9 @@ public class MainActivity extends ActionBarActivity {
     public static String KEY_COMMAND2_ENABLE = "command2_enable";
     public static String KEY_COMMAND2_DISABLE = "command2_disable";
     public static String KEY_SELECT_VALUES = "select_values";
-    public static String KEY_VALUE = "value";
+    public static String KEY_MULTILIST_CHANGE= "multilistchange";
     public static String KEY_EXECUTE = "execute";
+    public static String KEY_FINISH_COMMAND = "finishcommand";
 
     public static String KEY_HOSTNAME = "hostname";
     public static String KEY_IPADRESS = "ipadress";
@@ -221,7 +236,6 @@ public class MainActivity extends ActionBarActivity {
 
             TreeNode parent = new TreeNode(new HeaderNode.HeaderText(eachHost.get(KEY_HOSTNAME))).setViewHolder(new HeaderNode(MainActivity.this));
 
-
             parent.setLongClickListener((treeNode, o) -> {
                 deleteHostDialog(eachHost.get(KEY_HOSTNAME));
                 return false;
@@ -229,91 +243,108 @@ public class MainActivity extends ActionBarActivity {
 
 
             for (int i = 0; i < superList.size(); i++) {
-                TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
-                for (HashMap<String, String> each : superList.get(i)) {
+                if (groupHeaders.get(i).equals(Core.getResource().getString(R.string.expert)) && sp.getBoolean("expert_mode", false) || !groupHeaders.get(i).equals(Core.getResource().getString(R.string.expert))) {
+                    TreeNode subCategory = new TreeNode(new SubHeaderNode.SubHeaderText(groupHeaders.get(i))).setViewHolder(new SubHeaderNode(MainActivity.this));
+                    for (HashMap<String, String> each : superList.get(i)) {
 
-                    switch(each.get(KEY_CONTENT_TYPE)){
-                        case "1": // CONTENT_TEXT
-                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this)));
-                            break;
 
-                        case "2": //CONTENT_TEXT_EDIT
-                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
-                                    .setClickListener((treeNode, o) -> {
-                                                ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+                        switch (each.get(KEY_CONTENT_TYPE)) {
+                            case "1": // CONTENT_TEXT
+                                subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this)));
+                                break;
 
-                                                TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
-                                                String textvalue = textField.getText().toString();
-                                                if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
-                                                    Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
-                                                } else {
-                                                    editDialog(nodeData.data, textvalue, nodeData.hostinfo.get(KEY_IPADRESS), textField);
+                            case "2": //CONTENT_TEXT_EDIT
+                                subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                        .setClickListener((treeNode, o) -> {
+                                                    ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                                                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                                    String textvalue = textField.getText().toString();
+                                                    if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                                        Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        editDialog(nodeData.data, textvalue, nodeData.hostinfo.get(KEY_IPADRESS), textField);
+                                                    }
                                                 }
-                                            }
 
                                         ));
-                            break;
+                                break;
 
-                        case "3": //CONTENT_NOTEXT
-                            subCategory.addChild(new TreeNode(new ChildNodeNoDetail.ChildNodeData(each,eachHost)).setViewHolder(new ChildNodeNoDetail(MainActivity.this))
-                                    .setClickListener((treeNode, o) -> {
-                                        ChildNodeNoDetail.ChildNodeData nodeData = (ChildNodeNoDetail.ChildNodeData) o;
-                                        executeCommands(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND));
-                                    })
+                            case "3": //CONTENT_NOTEXT
+                                subCategory.addChild(new TreeNode(new ChildNodeNoDetail.ChildNodeData(each, eachHost)).setViewHolder(new ChildNodeNoDetail(MainActivity.this))
+                                                .setClickListener((treeNode, o) -> {
+                                                    ChildNodeNoDetail.ChildNodeData nodeData = (ChildNodeNoDetail.ChildNodeData) o;
+                                                    executeCommands(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND));
+                                                })
                                 );
-                            break;
+                                break;
 
-                        case "4": //CONTENT_NUMBERPICKER
-                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
-                                    .setClickListener((treeNode, o) -> {
-                                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+                            case "4": //CONTENT_NUMBERPICKER
+                                subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                        .setClickListener((treeNode, o) -> {
+                                            ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
 
-                                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
-                                        String textvalue = textField.getText().toString();
-                                        if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
-                                            Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
-                                        } else {
-                                            editNumberPickerDialog(nodeData.data, textvalue, textField, nodeData.hostinfo.get(KEY_IPADRESS));
-                                        }
-                                    }));
-                            break;
+                                            TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                            String textvalue = textField.getText().toString();
+                                            if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                                Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                            } else {
+                                                editNumberPickerDialog(nodeData.data, textvalue, textField, nodeData.hostinfo.get(KEY_IPADRESS));
+                                            }
+                                        }));
+                                break;
 
-                        case "5": //CONTENT_LIST
-                            break;
+                            case "5": //CONTENT_LIST
+                                break;
 
-                        case "6": //CONTENT_MULTISELECTLIST
-                            break;
+                            case "6": //CONTENT_MULTISELECTLIST
+                                subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                        .setClickListener((treeNode, o) -> {
+                                                    ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
 
-                        case "7": //CONTENT_SWITCH
-                            subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
-                                    .setClickListener((treeNode, o) -> {
-                                        ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
-
-                                        TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
-
-                                        String textvalue = textField.getText().toString();
-
-                                        if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
-                                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
-
-                                            textField.setText(Core.getResource().getString(R.string.disabled));
-                                        } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
-                                            changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
-                                            textField.setText(Core.getResource().getString(R.string.enabled));
-
-                                        } else if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
-                                            Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
-                                        }
-                                    }));
-                            break;
+                                                    TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+                                                    String textvalue = textField.getText().toString();
+                                                    if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                                        Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        editMultiSelectListDialog(nodeData.data, textField, nodeData.hostinfo.get(KEY_IPADRESS));
+                                                    }
+                                                }
 
 
-                        default:
-                            break;
+                                        ));
+                                break;
+
+                            case "7": //CONTENT_SWITCH
+                                subCategory.addChild(new TreeNode(new ChildNode.ChildNodeData(each, eachHost)).setViewHolder(new ChildNode(MainActivity.this))
+                                        .setClickListener((treeNode, o) -> {
+                                            ChildNode.ChildNodeData nodeData = (ChildNode.ChildNodeData) o;
+
+                                            TextView textField = (TextView) treeNode.getViewHolder().getView().findViewById(R.id.childNode_itemvalue);
+
+                                            String textvalue = textField.getText().toString();
+
+                                            if (textvalue.equals(Core.getResource().getString(R.string.enabled))) {
+                                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_DISABLE), nodeData.data.get(KEY_COMMAND) + "=0");
+
+                                                textField.setText(Core.getResource().getString(R.string.disabled));
+                                            } else if (textvalue.equals(Core.getResource().getString(R.string.disabled))) {
+                                                changeSetting(nodeData.hostinfo.get(KEY_IPADRESS), nodeData.data.get(KEY_COMMAND2_ENABLE), nodeData.data.get(KEY_COMMAND) + "=1");
+                                                textField.setText(Core.getResource().getString(R.string.enabled));
+
+                                            } else if (textvalue.equals(Core.getResource().getString(R.string.not_connected))) {
+                                                Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.not_connected_change), Toast.LENGTH_LONG).show();
+                                            }
+                                        }));
+                                break;
+
+
+                            default:
+                                break;
+                        }
                     }
-
+                    parent.addChild(subCategory);
                 }
-                parent.addChild(subCategory);
             }
 
             root.addChild(parent);
@@ -609,6 +640,70 @@ public class MainActivity extends ActionBarActivity {
 
         // show it
         alertDialog.show();
+    }
+
+
+    private void editMultiSelectListDialog(final HashMap<String,String> info, final TextView valueField,String ipadress){
+
+        LayoutInflater layoutInflater = (LayoutInflater) MainActivity.this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View promptsView = layoutInflater.inflate(R.layout.alertdialog_listview,null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                MainActivity.this);
+        alertDialogBuilder.setView(promptsView);
+
+        final ListView listView = (ListView) promptsView.findViewById(R.id.alertListView);
+        final TextView header = (TextView) promptsView.findViewById(R.id.alertTitle);
+        header.setText(info.get(KEY_HEADER));
+
+
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_multiple_choice);
+
+        listView.setAdapter(adapter);
+
+        Core.sshHelper.populateArrayAdapter(listView,adapter,ipadress,info.get(KEY_SELECT_VALUES));
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton(Core.getResource().getString(R.string.ok),
+                        (dialog, id) -> {
+
+                            SparseBooleanArray checked = listView.getCheckedItemPositions();
+
+                            for(int i=0;i<checked.size();i++){
+                                if(checked.get(i)){
+                                    changeSetting(ipadress,info.get(KEY_MULTILIST_CHANGE).replace("{value}",adapter.getItem(i))+"=1");
+                                }else{
+                                    changeSetting(ipadress,info.get(KEY_MULTILIST_CHANGE).replace("{value}",adapter.getItem(i))+"=0");
+                                }
+                            }
+
+                            if(info.containsKey(KEY_FINISH_COMMAND)){
+                                Core.sshHelper.executeCommandThread(info.get(KEY_FINISH_COMMAND),ipadress);
+                            }
+
+                            Core.sshHelper.setText(valueField,info.get(KEY_COMMAND),ipadress,false);
+
+
+                            dialog.dismiss();
+                        })
+                .setNegativeButton(Core.getResource().getString(R.string.cancel),
+                        (dialog, id) -> {
+                            dialog.dismiss();
+                        });
+
+        // create alert dialog
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+
+        // show it
+        alertDialog.show();
+
+
+
     }
 
 
