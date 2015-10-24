@@ -45,6 +45,11 @@
     <string name="mesh">Mesh</string>
     <string name="mesh_on_WAN">Mesh on WAN-Port</string>
     <string name="mesh_on_LAN">Mesh on LAN-Port</string>
+    
+    <string name="internet">Internet</string>
+    <string name="limit_bandwith">Limit bandwidth</string>
+    <string name="limit_bandwith_upload">Limit bandwidth upload</string>
+    <string name="limit_bandwith_download">Limit bandwidth download</string>
 
     <string name="wifi">Wifi</string>
     <string name="transmitting_power">Transmitting Power</string>
@@ -57,16 +62,18 @@
     <!-- Expert Mode -->
     <string name="expert">Expert</string>
     <string name="gateways">Gateways</string>
+    <string name="client_network">Disable client network</string>
 
 
     <!-- Host Dialog -->
     <string name="ip_adress">IP address</string>
-    <string name="host_name">Host name</string>
+    <string name="node_name">Node name</string>
     <string name="invalid_ipadress">Invalid IPAdress</string>
+    <string name="add_node">Add node</string>
 
     <!-- Delete Host Dialog -->
-    <string name="delete_host">Delete Host</string>
-    <string name="delete_host_text">Are you sure you want to remove this host?</string>
+    <string name="delete_node">Delete Node</string>
+    <string name="delete_node_text">Are you sure you want to remove this nodes?</string>
     
     
     <!-- Settings -->

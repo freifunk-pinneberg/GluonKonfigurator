@@ -40,6 +40,7 @@ public class MainActivity extends ActionBarActivity {
         add(Core.getResource().getString(R.string.auto_updater));
         add(Core.getResource().getString(R.string.location));
         add(Core.getResource().getString(R.string.mesh));
+        add(Core.getResource().getString(R.string.internet));
         add(Core.getResource().getString(R.string.wifi));
         add(Core.getResource().getString(R.string.expert));
     }};
@@ -130,6 +131,27 @@ public class MainActivity extends ActionBarActivity {
 
     }};
 
+    ArrayList<HashMap<String,String >> internet= new ArrayList<HashMap<String, String>>(){{
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.limit_bandwith));
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
+            put(KEY_COMMAND,"gluon-simple-tc.mesh_vpn.enabled");
+        }});
+
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.limit_bandwith_upload));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
+            put(KEY_COMMAND,"gluon-simple-tc.mesh_vpn.limit_egress");
+        }});
+
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.limit_bandwith_download));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT_EDIT);
+            put(KEY_COMMAND,"gluon-simple-tc.mesh_vpn.limit_ingress");
+        }});
+
+    }};
+
     ArrayList<HashMap<String,String >> wifi= new ArrayList<HashMap<String, String>>(){{
         add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.transmitting_power));
@@ -137,6 +159,7 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_COMMAND,"wireless.radio0.txpower");
             put(KEY_SELECT_VALUES,"iwinfo client0 txpower");
         }});
+
 
     }};
 
@@ -150,6 +173,14 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_FINISH_COMMAND,"/etc/init.d/fastd restart");
         }});
 
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER,Core.getResource().getString(R.string.client_network));
+            put(KEY_COMMAND,"wireless.client_radio0.disabled");
+            put(KEY_CONTENT_TYPE,CONTENT_SWITCH);
+            put(KEY_COMMAND2_ENABLE,"/etc/init.d/network restart");
+            put(KEY_COMMAND2_DISABLE,"/etc/init.d/network restart");
+        }});
+
     }};
 
 
@@ -160,6 +191,7 @@ public class MainActivity extends ActionBarActivity {
         add(auto_updater);
         add(location);
         add(mesh);
+        add(internet);
         add(wifi);
         add(expert);
     }};
@@ -501,10 +533,10 @@ public class MainActivity extends ActionBarActivity {
                 MainActivity.this);
 
 
-        deleteHostDialog.setTitle(Core.getResource().getString(R.string.delete_host));
+        deleteHostDialog.setTitle(Core.getResource().getString(R.string.delete_node));
 
 
-        deleteHostDialog.setMessage(Core.getResource().getString(R.string.delete_host_text));
+        deleteHostDialog.setMessage(Core.getResource().getString(R.string.delete_node_text));
 
 
 
