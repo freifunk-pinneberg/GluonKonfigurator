@@ -40,10 +40,17 @@
 
     <PreferenceCategory android:title="@string/location">
 
+
         <CheckBoxPreference
             android:title="@string/automatic_location"
             android:summary="@string/automatic_location_summary"
             android:key="automatic_location" />
+
+        <MultiSelectListPreference
+            android:title="@string/select_nodes"
+            android:summary="@string/select_nodes_summary"
+            android:dependency="automatic_location"
+            android:key="selected_nodes"/>
 
         <CheckBoxPreference
             android:title="@string/use_gps"

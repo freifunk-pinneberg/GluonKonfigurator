@@ -267,6 +267,8 @@ public class SSHHelper{
     public void setText(final TextView textView, final String command,String ipadress,boolean correction){
         final Handler handler = new Handler();
 
+        textView.setText(Core.getResource().getString(R.string.loading));
+
         //checkSSHClient();
         new Thread(() -> {
             final String response = executeCommand(command,ipadress);

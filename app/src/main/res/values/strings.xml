@@ -12,6 +12,7 @@
     <string name="disabled">Disabled</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="loading">Loading ..</string>
 
     <!-- ErrorMessages -->
     <string name="error_no_host">Error: No host configured</string>
@@ -77,6 +78,8 @@
     <string name="key_password_summary">Password for encrypted Key</string>
     <string name="username">Username</string>
     <string name="username_summary">Username for SSH login</string>
+    <string name="select_nodes">Select nodes</string>
+    <string name="select_nodes_summary">Nodes which will be updated based on location</string>
 
 
     <string name="automatic_location">Location Update</string>

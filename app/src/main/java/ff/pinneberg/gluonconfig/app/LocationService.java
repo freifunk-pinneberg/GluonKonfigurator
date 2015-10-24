@@ -12,6 +12,13 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LocationService extends Service {
     public static final String BROADCAST_ACTION = "ff.pinneberg.gluonconfig.locationChanged";
@@ -135,8 +142,24 @@ public class LocationService extends Service {
             Log.i(getClass().getSimpleName(),"Location Changed");
             if(isBetterLocation(loc, previousBestLocation)) {
 
-               // Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].latitude=" + loc.getLatitude());
-               // Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].longitude=" + loc.getLongitude());
+                Set<String> selected_nodes = sp.getStringSet("selected_nodes",new HashSet<>());
+
+                ArrayList<HashMap<String,String>> hosts = new Gson().fromJson(sp.getString("hosts", ""), new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType());
+                if(hosts == null) {
+                    hosts = new ArrayList<>();
+                }
+
+
+                for(HashMap<String,String> eachHost: hosts){
+                    for(String hostname: selected_nodes){
+                        if(eachHost.get(MainActivity.KEY_HOSTNAME).equals(hostname)){
+                            Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].latitude=" + loc.getLatitude(),eachHost.get(MainActivity.KEY_IPADRESS));
+                            Core.sshHelper.executeCommandThread(MainActivity.gluon_set + "gluon-node-info.@location[0].longitude=" + loc.getLongitude(),eachHost.get(MainActivity.KEY_IPADRESS));
+
+                        }
+                    }
+                }
+
 
             }
         }

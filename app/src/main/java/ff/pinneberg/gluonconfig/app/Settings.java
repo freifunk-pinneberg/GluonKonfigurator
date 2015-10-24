@@ -3,24 +3,21 @@ package ff.pinneberg.gluonconfig.app;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.os.Handler;
 import android.os.Message;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
+import android.preference.*;
 import android.support.v7.app.AlertDialog;
-import android.view.WindowManager;
 import android.widget.Toast;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Settings extends SettingsActivity {
 
@@ -50,6 +47,7 @@ public class Settings extends SettingsActivity {
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         final ListPreference authMethod = (ListPreference) findPreference("auth_method");
         final EditTextPreference authPassword = (EditTextPreference) findPreference("auth_password");
+        final MultiSelectListPreference selected_nodes = (MultiSelectListPreference) findPreference("selected_nodes");
 
 
         final Preference authKey =  findPreference("auth_key");
@@ -101,6 +99,22 @@ public class Settings extends SettingsActivity {
 
             return false;
         });
+
+
+        ArrayList<String> nodeNames = new ArrayList<>();
+        ArrayList<HashMap<String,String>> hosts = new Gson().fromJson(sp.getString("hosts", ""), new TypeToken<ArrayList<HashMap<String,String>>>(){}.getType());
+        if(hosts == null){
+            hosts = new ArrayList<>();
+        }
+
+        for(HashMap<String,String> eachHost: hosts){
+            nodeNames.add(eachHost.get(MainActivity.KEY_HOSTNAME));
+        }
+
+        selected_nodes.setEntries(nodeNames.toArray(new String[nodeNames.size()]));
+        selected_nodes.setEntryValues(nodeNames.toArray(new String[nodeNames.size()]));
+
+
     }
 
     private void fileSelectIntent(){
