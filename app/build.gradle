@@ -8,6 +8,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.1.1'
         classpath 'me.tatarka:gradle-retrolambda:3.2.1'
     }
+
 }
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
@@ -34,7 +35,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    buildTypes {
+    lintOptions {
+        //Android Lint does not know lambda
+        abortOnError false
+    }
+
+
+        buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

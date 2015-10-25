@@ -55,6 +55,20 @@ public class MainActivity extends ActionBarActivity {
         }});
 
         add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.community_version));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT);
+            put(KEY_COMMAND,"cat /lib/gluon/release");
+        }});
+
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.gluon_version));
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT);
+            put(KEY_COMMAND,"cat /lib/gluon/gluon-version");
+        }});
+
+
+
+        add(new HashMap<String, String>(){{
             put(KEY_HEADER, Core.getResource().getString(R.string.reboot_to_config));
             put(KEY_CONTENT_TYPE,CONTENT_NOTEXT);
             put(KEY_COMMAND, "uci set gluon-setup-mode.@setup_mode[0].enabled='1';" +
@@ -90,6 +104,12 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_CONTENT_TYPE,CONTENT_NUMBERPICKER);
             put(KEY_COMMAND,"autoupdater.settings.branch");
             put(KEY_SELECT_VALUES,"uci show | grep =branch | cut -d. -f2  | cut -d\"=\" -f1");
+        }});
+
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER, Core.getResource().getString(R.string.force_update));
+            put(KEY_CONTENT_TYPE,CONTENT_NOTEXT);
+            put(KEY_COMMAND, "autoupdater -f -b $(uci show | grep autoupdater.settings.branch | cut -d\"=\" -f2)");
         }});
 
     }};
