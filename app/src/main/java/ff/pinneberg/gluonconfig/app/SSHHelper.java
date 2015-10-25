@@ -365,6 +365,9 @@ public class SSHHelper{
                     numberPicker.setMinValue(0);
                     numberPicker.setMaxValue(select_vals.length -1);
                     numberPicker.setValue(Integer.parseInt(currentval));
+                    synchronized (numberPicker) {
+                        numberPicker.notifyAll();
+                    }
                 });
             }else{
                 String[] select_vals = executeCommandwithoutCorrection(select_value_ssh,ipadress).split("\n");
@@ -374,15 +377,18 @@ public class SSHHelper{
 
                 handler.post(() -> {
 
-                   /* EditText numberPickerChild = (EditText) numberPicker.getChildAt(0);
+                    EditText numberPickerChild = (EditText) numberPicker.getChildAt(0);
                     numberPickerChild.setFocusable(false);
-                    numberPickerChild.setInputType(InputType.TYPE_NULL);*/
+                    numberPickerChild.setInputType(InputType.TYPE_NULL);
 
                     numberPicker.setDisplayedValues(select_vals);
-                   // numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                    numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
                     numberPicker.setMinValue(0);
                     numberPicker.setMaxValue(select_vals.length -1);
                     numberPicker.setValue(selectable_values.indexOf(currentval));
+                    synchronized (numberPicker) {
+                        numberPicker.notifyAll();
+                    }
 
                 });
             }
