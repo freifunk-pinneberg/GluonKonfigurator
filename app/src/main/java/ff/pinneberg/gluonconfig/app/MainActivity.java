@@ -181,6 +181,12 @@ public class MainActivity extends ActionBarActivity {
             put(KEY_COMMAND2_DISABLE,"/etc/init.d/network restart");
         }});
 
+        add(new HashMap<String, String>(){{
+            put(KEY_HEADER,Core.getResource().getString(R.string.fastd_publ_key));
+            put(KEY_COMMAND,"/etc/init.d/fastd show_key mesh_vpn");
+            put(KEY_CONTENT_TYPE,CONTENT_TEXT);
+        }});
+
     }};
 
 
@@ -210,6 +216,7 @@ public class MainActivity extends ActionBarActivity {
     public static String KEY_MULTILIST_CHANGE= "multilistchange";
     public static String KEY_EXECUTE = "execute";
     public static String KEY_FINISH_COMMAND = "finishcommand";
+    public static String KEY_EXPERT = "expertonly";
 
     public static String KEY_HOSTNAME = "hostname";
     public static String KEY_IPADRESS = "ipadress";
@@ -508,7 +515,6 @@ public class MainActivity extends ActionBarActivity {
                 } else {
                     Toast.makeText(MainActivity.this, Core.getResource().getString(R.string.invalid_ipadress), Toast.LENGTH_SHORT).show();
                 }
-
             });
 
             Button negative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);

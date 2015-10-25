@@ -63,6 +63,7 @@
     <string name="expert">Expert</string>
     <string name="gateways">Gateways</string>
     <string name="client_network">Disable client network</string>
+    <string name="fastd_publ_key">Fastd Public Key</string>
 
 
     <!-- Host Dialog -->

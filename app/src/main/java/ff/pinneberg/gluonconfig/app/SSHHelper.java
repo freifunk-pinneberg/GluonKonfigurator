@@ -293,7 +293,11 @@ public class SSHHelper{
 
                     }
                 }else{
-                    textView.setText(response);
+                    if (connectionFailed) {
+                        textView.setText(Core.getResource().getString(R.string.not_connected));
+                    }else {
+                        textView.setText(response);
+                    }
                 }
 
             });
